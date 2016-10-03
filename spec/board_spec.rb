@@ -1,120 +1,153 @@
 require 'spec_helper'
 require 'board'
-require 'tileset'
+require 'tile'
 
 describe Board do
-  subject { Board.new(width: 10, height: 8) }
-  let(:tileset) { Tileset.standard_tileset }
+  subject { Board.new }
 
-  describe "load_from_string!" do
+  describe ".load_from_string!" do
     it "should load the stirng correctly" do
       string = %Q{
---C-------
--PARROT---
---T-------
-----------
-----------
-----------
-----------
-----------
+--C------------
+-PARROT--------
+--T------------
+---------------
+---------------
+---------------
+---------------
+---------------
+---------------
+---------------
+---------------
+---------------
+---------------
+---------------
+---------------
       }
-      subject.load_from_string!(string, tileset)
-      expect(subject.to_s).to eq(string.strip)
+      board = Board.load_from_string!(string)
+      expect(board.to_s).to eq(string.strip)
+    end
+  end
+
+  describe "empty?" do
+    it "should return true for an empty board" do
+      expect(subject.empty?).to eq(true)
+    end
+
+    it "should return false if a tile has been played" do
+      subject.place_tile!(Tile.new("Q"), [2, 2])
+      expect(subject.empty?).to eq(false)
+    end
+  end
+
+  describe "tile" do
+    it "should return the correct tile for the specified position" do
+      subject.place_tile!(Tile.new("Q"), [2, 3])
+      expect(subject.tile([2, 3]).character).to eq("Q")
+      expect(subject.tile([2, 4])).to be_nil
     end
   end
 
   describe "place_tile!" do
     context "with an empty board" do
       it "should place the tile in the correct place" do
-        tile_Q = tileset.tile("Q")
-        position = [2 ,1]
-        subject.place_tile!(tile_Q, position)
+        subject.place_tile!(Tile.new("Q"), [2, 1])
         expected = %Q{
-----------
---Q-------
-----------
-----------
-----------
-----------
-----------
-----------
+---------------
+--Q------------
+---------------
+---------------
+---------------
+---------------
+---------------
+---------------
+---------------
+---------------
+---------------
+---------------
+---------------
+---------------
+---------------
         }.strip
         expect(subject.to_s).to eq(expected)
       end
 
       it "should raise an error if a tile is placed off the right side of the board" do
-        tile_Q = tileset.tile("Q")
-        position = [10, 0]
-        expect { subject.place_tile!(tile_Q, position) }.to raise_error do |error|
+        expect { subject.place_tile!(Tile.new("Q"), [15, 0]) }.to raise_error do |error|
           expect(error).to be_a Board::InvalidTilePlacementError
-          expect(error.message).to match("column index 10 is not between 0 and 9")
+          expect(error.message).to match("column index 15 is not between 0 and 14")
         end
       end
 
       it "should raise an error if a tile is placed off the left side of the board" do
-        tile_Q = tileset.tile("Q")
-        position = [-1, 0]
-        expect { subject.place_tile!(tile_Q, position) }.to raise_error do |error|
+        expect { subject.place_tile!(Tile.new("Q"), [-1, 0]) }.to raise_error do |error|
           expect(error).to be_a Board::InvalidTilePlacementError
-          expect(error.message).to match("column index -1 is not between 0 and 9")
+          expect(error.message).to match("column index -1 is not between 0 and 14")
         end
       end
 
       it "should raise an error if a tile is placed off the bottom of the board" do
-        tile_Q = tileset.tile("Q")
-        position = [0, 8]
-        expect { subject.place_tile!(tile_Q, position) }.to raise_error do |error|
+        expect { subject.place_tile!(Tile.new("Q"), [0, 15]) }.to raise_error do |error|
           expect(error).to be_a Board::InvalidTilePlacementError
-          expect(error.message).to match("row index 8 is not between 0 and 7")
+          expect(error.message).to match("row index 15 is not between 0 and 14")
         end
       end
 
       it "should raise an error if a tile is placed off the top of the board" do
-        tile_Q = tileset.tile("Q")
-        position = [0, -1]
-        expect { subject.place_tile!(tile_Q, position) }.to raise_error do |error|
+        expect { subject.place_tile!(Tile.new("Q"), [0, -1]) }.to raise_error do |error|
           expect(error).to be_a Board::InvalidTilePlacementError
-          expect(error.message).to match("row index -1 is not between 0 and 7")
+          expect(error.message).to match("row index -1 is not between 0 and 14")
         end
       end
     end
 
     context "with a populated board" do
-      before do
-        string = %Q{
---C-------
--PARROT---
---T-------
-----------
-----------
-----------
-----------
-----------
+      let(:board_string) do
+        %Q{
+--C------------
+-PARROT--------
+--T------------
+---------------
+---------------
+---------------
+---------------
+---------------
+---------------
+---------------
+---------------
+---------------
+---------------
+---------------
+---------------
         }
-        subject.load_from_string!(string, tileset)
       end
 
+      subject { Board.load_from_string!(board_string) }
+
       it "should place the tile in the correct place and keep the existing tiles" do
-        tile_Q = tileset.tile("Q")
-        position = [4, 5]
-        subject.place_tile!(tile_Q, position)
+        subject.place_tile!(Tile.new("Q"), [4, 5])
         expected = %Q{
---C-------
--PARROT---
---T-------
-----------
-----------
-----Q-----
-----------
-----------
+--C------------
+-PARROT--------
+--T------------
+---------------
+---------------
+----Q----------
+---------------
+---------------
+---------------
+---------------
+---------------
+---------------
+---------------
+---------------
+---------------
         }.strip
         expect(subject.to_s).to eq(expected)
       end
 
       it "should raise an error if a tile is placed on an exiting tile" do
-        tile_Q = tileset.tile("Q")
-        position = [2, 0]
-        expect { subject.place_tile!(tile_Q, position) }.to raise_error do |error|
+        expect { subject.place_tile!(Tile.new("Q"), [2, 0]) }.to raise_error do |error|
           expect(error).to be_a Board::InvalidTilePlacementError
           expect(error.message).to eq("there is already a tile at position [2, 0]")
         end
@@ -123,18 +156,26 @@ describe Board do
   end
 
   describe "copy" do
-    before do
+
+    subject do
       string = %Q{
---C-------
--PARROT---
---T-------
-----------
-----------
-----------
-----------
-----------
+--C------------
+-PARROT--------
+--T------------
+---------------
+---------------
+---------------
+---------------
+---------------
+---------------
+---------------
+---------------
+---------------
+---------------
+---------------
+---------------
         }
-      subject.load_from_string!(string, tileset)
+      Board.load_from_string!(string)
     end
 
     it "should return a board that is identical to the original" do
@@ -145,25 +186,36 @@ describe Board do
     it "should return a board that can be edited independently of the original" do
       old_subject_string = subject.to_s
       subject_copy = subject.copy
-      subject_copy.place_tile!
-      expect(subject_copy.to_s).to eq(subject.to_s)
-      blah
+      subject_copy.place_tile!(Tile.new("Q"), [0, 0])
+      expect(subject_copy.to_s).to_not eq(old_subject_string)
+      expect(subject.to_s).to eq(old_subject_string)
     end
   end
 
   describe "all_played_words" do
-    it "should return all words" do
+
+    subject do
       string = %Q{
---C--S----
--PARROT---
--IT-A-AS--
---E-M-R---
--ARMPIT---
----OAT----
-----R-----
-----T-----
+--C--S---------
+-PARROT--------
+-IT-A-AS-------
+--E-M-R--------
+-ARMPIT--------
+---OAT---------
+----R----------
+----T----------
+---------------
+---------------
+---------------
+---------------
+---------------
+---------------
+---------------
       }
-      subject.load_from_string!(string, tileset)
+      Board.load_from_string!(string)
+    end
+
+    it "should return all words" do
       expect(subject.all_played_words).to eq([
         PlayedWord.new("PARROT", [1, 1], :across),
         PlayedWord.new("IT", [1, 2], :across),

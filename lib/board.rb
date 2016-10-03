@@ -1,31 +1,58 @@
+require 'json'
+
 class Board
   class InvalidTilePlacementError < StandardError; end
 
-  attr_reader :width
-  attr_reader :height
+  WIDTH = 15
+  HEIGHT = 15
+  CENTER = [7, 7].freeze
 
-  def initialize(params)
-    @width = params.fetch(:width)
-    @height = params.fetch(:height)
-    @tiles = Array.new(@height) { Array.new(@width) }
+  def initialize
+    @tiles = Array.new(HEIGHT) { Array.new(WIDTH) }
   end
 
-  def load_from_string!(string, tileset)
+  def self.load_from_string!(string)
+    board = new
     string.strip.split("\n").each_with_index do |row_string, row_idx|
       row_string.each_char.with_index do |char, col_idx|
         if char != "-"
-          @tiles[row_idx][col_idx] = tileset.tile(char)
+          board.place_tile!(Tile.new(char), [col_idx, row_idx])
         end
       end
     end
+    board
+  end
+
+  def center
+    CENTER
+  end
+
+  def empty?
+    @tiles.flatten.compact.empty?
+  end
+
+  def tile(position)
+    @tiles[position[1]][position[0]]
+  end
+
+  def copy
+    board_copy = Board.new
+    @tiles.each_with_index do |tile_row, row_idx|
+      tile_row.each_with_index do |tile, col_idx|
+        unless tile.nil?
+          board_copy.place_tile!(tile.dup, [col_idx, row_idx])
+        end
+      end
+    end
+    board_copy
   end
 
   def place_tile!(tile, position)
-    unless (0..(width - 1)).include?(position[0])
-      raise InvalidTilePlacementError, "column index #{position[0]} is not between #{0} and #{width - 1}" 
+    unless (0..(WIDTH - 1)).include?(position[0])
+      raise InvalidTilePlacementError, "column index #{position[0]} is not between #{0} and #{WIDTH - 1}" 
     end
-    unless (0..(height - 1)).include?(position[1])
-      raise InvalidTilePlacementError, "row index #{position[1]} is not between #{0} and #{height - 1}" 
+    unless (0..(HEIGHT - 1)).include?(position[1])
+      raise InvalidTilePlacementError, "row index #{position[1]} is not between #{0} and #{HEIGHT - 1}" 
     end
     unless @tiles[position[1]][position[0]].nil?
       raise InvalidTilePlacementError, "there is already a tile at position [#{position[0]}, #{position[1]}]" 
@@ -35,11 +62,11 @@ class Board
 
   def all_played_words
     played_words = []
-    rows = (0..(height - 1)).map do |row_num| 
+    rows = (0..(HEIGHT - 1)).map do |row_num| 
       @tiles[row_num]
     end
-    cols = (0..(width - 1)).map do |col_num|
-      (0..(height - 1)).map do |row_num|
+    cols = (0..(WIDTH - 1)).map do |col_num|
+      (0..(HEIGHT - 1)).map do |row_num|
         @tiles[row_num][col_num]
       end
     end
@@ -55,7 +82,7 @@ class Board
         if tile.nil?
           s += "-"
         else
-          s += tile.character
+          s += tile.character.upcase
         end
       end
       s += "\n"
