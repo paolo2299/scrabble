@@ -76,8 +76,14 @@ class Game
       end
     end
 
-    #validate that at least one new word uses a tile that was already on the board
-    
+    unless first_move
+      built_on_existing_words = positioned_tiles.any? do |positioned_tile|
+        board.has_adjacent_tiles?(positioned_tile.position)
+      end
+      unless built_on_existing_words
+        raise InvalidMove::DidNotBuildOnExistingWordsError.new
+      end
+    end
   end
 end
 

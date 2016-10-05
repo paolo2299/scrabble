@@ -27,6 +27,20 @@ class Board
     CENTER
   end
 
+  def has_adjacent_tiles?(position)
+    x, y = position
+    if (x < WIDTH - 1) && !tile([x + 1, y]).nil?
+      return true
+    elsif (x > 0) && !tile([x - 1, y]).nil?
+      return true
+    elsif (y < HEIGHT - 1) && !tile([x, y + 1]).nil?
+      return true
+    elsif (y > 0) && !tile([x, y - 1]).nil?
+      return true
+    end
+    return false
+  end
+
   def empty?
     @tiles.flatten.compact.empty?
   end

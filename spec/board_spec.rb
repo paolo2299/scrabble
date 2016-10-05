@@ -232,4 +232,36 @@ describe Board do
       ])
     end
   end
+
+  describe "has_adjacent_tiles?" do
+    let(:board_string) do
+      %Q{
+-C---S---------
+PARROT---------
+-T---R---------
+-----A---------
+-----T--L------
+----PARROT-----
+--------T------
+--------T------
+--------E------
+-------GRIT----
+--------Y-O----
+----------N----
+----------G----
+----------U----
+--------BREADED
+      }
+    end
+
+    subject { Board.load_from_string!(board_string) }
+
+    it "should return true if there is an adjacent square with a tile, false otherwise" do
+      expect(subject.has_adjacent_tiles?([0, 0])).to eq(true)
+      expect(subject.has_adjacent_tiles?([0, 10])).to eq(false)
+      expect(subject.has_adjacent_tiles?([10, 5])).to eq(true)
+      expect(subject.has_adjacent_tiles?([10, 6])).to eq(false)
+      expect(subject.has_adjacent_tiles?([14, 13])).to eq(true)
+    end
+  end
 end
