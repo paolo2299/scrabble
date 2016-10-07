@@ -1,12 +1,40 @@
 require 'spec_helper'
 require 'board'
+require 'tile'
 require 'game'
 
 describe Game do
   let(:board) { Board.new }
+  let(:player) { :player1 }
   subject { Game.new(board) }
 
-  describe "play_tiles!" do
+  describe "play!" do
+    context "when the current player is player1" do
+      it "should cause the current player to be player2" do
+        tiles = [
+          PositionedTile.new(Tile.new("c"), [7, 5]),
+          PositionedTile.new(Tile.new("a"), [7, 6]),
+          PositionedTile.new(Tile.new("t"), [7, 7]),
+        ]
+        subject.play!(player, tiles)
+        expect(subject.to_hash.fetch(:player)).to eq(:player2)
+      end
+    end
+
+    context "when the current player is player2" do
+      subject { Game.new(board, :player2) }
+
+      it "should cause the current player to be player1" do
+        tiles = [
+          PositionedTile.new(Tile.new("c"), [7, 5]),
+          PositionedTile.new(Tile.new("a"), [7, 6]),
+          PositionedTile.new(Tile.new("t"), [7, 7]),
+        ]
+        subject.play!(player, tiles)
+        expect(subject.to_hash.fetch(:player)).to eq(:player1)
+      end
+    end
+
     context "making the first move of the game" do
       it "should play the tiles if it is a real word crossing the center square" do
         tiles = [
@@ -14,8 +42,8 @@ describe Game do
           PositionedTile.new(Tile.new("a"), [7, 6]),
           PositionedTile.new(Tile.new("t"), [7, 7]),
         ]
-        subject.play_tiles!(tiles)
-        expect(subject.board.to_s).to eq(%Q{
+        subject.play!(player, tiles)
+        expect(subject.to_hash.fetch(:board)).to eq(%Q{
 ---------------
 ---------------
 ---------------
@@ -40,7 +68,7 @@ describe Game do
           PositionedTile.new(Tile.new("a"), [6, 6]),
           PositionedTile.new(Tile.new("t"), [6, 7]),
         ]
-        expect { subject.play_tiles!(tiles) }.to raise_error do |error|
+        expect { subject.play!(player, tiles) }.to raise_error do |error|
           expect(error).to be_a(InvalidMove::FirstMoveNotOnCenterError)
         end
         expect(board).to be_empty
@@ -52,7 +80,7 @@ describe Game do
           PositionedTile.new(Tile.new("a"), [7, 6]),
           PositionedTile.new(Tile.new("t"), [7, 7]),
         ]
-        expect { subject.play_tiles!(tiles) }.to raise_error do |error|
+        expect { subject.play!(player, tiles) }.to raise_error do |error|
           expect(error).to be_a(InvalidMove::NotInSameRowOrSameColumnError)
         end
         expect(board).to be_empty
@@ -66,7 +94,7 @@ describe Game do
           PositionedTile.new(Tile.new("c"), [7, 9]),
           PositionedTile.new(Tile.new("h"), [7, 10]),
         ]
-        expect { subject.play_tiles!(tiles) }.to raise_error do |error|
+        expect { subject.play!(player, tiles) }.to raise_error do |error|
           expect(error).to be_a(InvalidMove::GapError)
         end
         expect(board).to be_empty
@@ -78,7 +106,7 @@ describe Game do
           PositionedTile.new(Tile.new("j"), [7, 6]),
           PositionedTile.new(Tile.new("k"), [7, 7]),
         ]
-        expect { subject.play_tiles!(tiles) }.to raise_error do |error|
+        expect { subject.play!(player, tiles) }.to raise_error do |error|
           expect(error).to be_a(InvalidMove::NotAWordError)
         end
         expect(board).to be_empty
@@ -114,7 +142,7 @@ describe Game do
           PositionedTile.new(Tile.new("o"), [3, 9]),
           PositionedTile.new(Tile.new("t"), [4, 10]),
         ]
-        expect { subject.play_tiles!(tiles) }.to raise_error do |error|
+        expect { subject.play!(player, tiles) }.to raise_error do |error|
           expect(error).to be_a(InvalidMove::NotInSameRowOrSameColumnError)
         end
       end
@@ -127,7 +155,7 @@ describe Game do
           PositionedTile.new(Tile.new("o"), [3, 9]),
           PositionedTile.new(Tile.new("t"), [3, 11]),
         ]
-        expect { subject.play_tiles!(tiles) }.to raise_error do |error|
+        expect { subject.play!(player, tiles) }.to raise_error do |error|
           expect(error).to be_a(InvalidMove::GapError)
         end
       end
@@ -138,7 +166,7 @@ describe Game do
           PositionedTile.new(Tile.new("d"), [6, 5]),
           PositionedTile.new(Tile.new("g"), [6, 7]),
         ]
-        expect { subject.play_tiles!(tiles) }.to raise_error do |error|
+        expect { subject.play!(player, tiles) }.to raise_error do |error|
           expect(error).to be_a(InvalidMove::NotAWordError)
         end
       end
@@ -150,9 +178,27 @@ describe Game do
           PositionedTile.new(Tile.new("o"), [0, 2]),
           PositionedTile.new(Tile.new("g"), [0, 3]),
         ]
-        expect { subject.play_tiles!(tiles) }.to raise_error do |error|
+        expect { subject.play!(player, tiles) }.to raise_error do |error|
           expect(error).to be_a(InvalidMove::DidNotBuildOnExistingWordsError)
         end
+      end
+    end
+  end
+
+  describe "pass!" do
+    context "when the current player is player1" do
+      it "should cause the current player to be player2" do
+        subject.pass!
+        expect(subject.to_hash.fetch(:player)).to eq(:player2)
+      end
+    end
+
+    context "when the current player is player2" do
+      subject { Game.new(board, :player2) }
+
+      it "should cause the current player to be player1" do
+        subject.pass!
+        expect(subject.to_hash.fetch(:player)).to eq(:player1)
       end
     end
   end

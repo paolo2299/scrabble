@@ -7,14 +7,43 @@ class Game
     PARROT
   }
 
+  attr_reader :current_player
+
+  def initialize(board, starting_player = nil)
+    @board = board
+    @current_player = (starting_player || :player1)
+  end
+
+  def play!(player, positioned_tiles)
+    validate_move!(positioned_tiles)
+    play_tiles!(positioned_tiles)
+    next_players_turn!
+  end
+  
+  def pass!
+    next_players_turn!
+  end
+
+  def to_hash
+    {
+      player: current_player,
+      board: board.to_s
+    }
+  end
+
+  private
+
   attr_reader :board
 
-  def initialize(board)
-    @board = board
+  def next_players_turn!
+    if @current_player == :player1
+      @current_player = :player2
+    else
+      @current_player = :player1
+    end
   end
 
   def play_tiles!(positioned_tiles)
-    validate_move!(positioned_tiles)
     positioned_tiles.each do |positioned_tile|
       board.place_tile!(
         positioned_tile.tile,
@@ -22,8 +51,6 @@ class Game
       )
     end
   end
-
-  private
 
   def valid_word?(word)
     WORDS.include?(word)
