@@ -69,7 +69,7 @@
           if (tileIndexData) {
             playerTileId = tileIndexData.playerTileId;
             tileData = _.find(this.props.playerTiles, { 'tileId': playerTileId });
-            tile = <Tile key={colIndex} letter={tileData.letter} score={tileData.score} played="false"></Tile>;
+            tile = <Tile letter={tileData.letter} score={tileData.score} tentative="true"></Tile>;
           }
           return tile;
         },
@@ -122,8 +122,12 @@
 
       var Tile = React.createClass({
         render: function() {
+          let className = "Tile";
+          if (this.props.tentative) {
+            className += " tentative"
+          }
           return (
-            <div className="Tile" data-played={this.props.played}>
+            <div className={className}>
               <span className="Letter">
                 {this.props.letter}
               </span><span className="Score">
