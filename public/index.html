@@ -1,0 +1,143 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>React Tutorial</title>
+    <script src="vendor/react.js"></script>
+    <script src="vendor/react-dom.js"></script>
+    <script src="vendor/babel.js"></script>
+    <script src="vendor/jquery-3.1.1.min.js"></script>
+    <script src="vendor/lodash.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="style.css">
+  </head>
+  <body>
+    <div id="content"></div>
+    <script type="text/babel">
+      var GameContainer = React.createClass({
+        getInitialState: function() {
+          var initialState = {
+            playedTiles: [
+              {letter: "A", score: 1, position: [1, 1]},
+              {letter: "Z", score: 10, position: [2, 2]}
+            ],
+
+            playerTiles: [
+              {tileId: 1, letter: "A", score: 1},
+              {tileId: 2, letter: "C", score: 2},
+              {tileId: 3, letter: "T", score: 1},
+              {tileId: 4, letter: "A", score: 1},
+              {tileId: 5, letter: "A", score: 1}
+            ],
+
+            selectedTileId: 1,
+
+            tentativelyPlayedTiles: [
+              {playerTileId: 2, position: [5, 1]},
+              {playerTileId: 3, position: [5, 3]},
+              {playerTileId: 4, position: [5, 2]}
+            ]
+          };
+          return initialState;
+        },
+
+        render: function() {
+          return (
+            <div className="GameContainer">
+              <Board playedTiles={this.state.playedTiles} playerTiles={this.state.playerTiles} tentativelyPlayedTiles={this.state.tentativelyPlayedTiles}/>
+              <TileRack selectedTileId={this.state.selectedTileId} playerTiles={this.state.playerTiles} tentativelyPlayedTiles={this.state.tentativelyPlayedTiles}/>
+            </div>
+          );
+        }
+      });
+
+      var Board = React.createClass({
+        findPlayedTile: function(colIndex, rowIndex) {
+          var tile = null;
+          var tileData = _.find(this.props.playedTiles, { 'position': [colIndex, rowIndex] });
+          if (tileData) {
+           tile = <Tile key={colIndex} letter={tileData.letter} score={tileData.score} played="true"></Tile>;
+          }
+          return tile;
+        },
+
+        findTentativelyPlayedTile: function(colIndex, rowIndex) {
+          var tile = null;
+          var tileData = null;
+          var playerTileId = null;
+          var tileIndexData = _.find(this.props.tentativelyPlayedTiles, { 'position': [colIndex, rowIndex] });
+          if (tileIndexData) {
+            playerTileId = tileIndexData.playerTileId;
+            tileData = _.find(this.props.playerTiles, { 'tileId': playerTileId });
+            tile = <Tile key={colIndex} letter={tileData.letter} score={tileData.score} played="false"></Tile>;
+          }
+          return tile;
+        },
+
+        render: function() {
+          var self = this;
+          var boardRows = _.range(15).map(function(rowIndex){
+            var squares = _.range(15).map(function(colIndex){
+              var square;
+              var tile = self.findPlayedTile(colIndex, rowIndex) ||
+                         self.findTentativelyPlayedTile(colIndex, rowIndex);
+              return (
+                <td className="BoardCell" key={colIndex}>
+                  { tile }
+                </td>
+              );
+              return square;
+            });
+            return (
+              <tr className="BoardRow" key={rowIndex}>
+                { squares }
+              </tr>
+            );
+          });
+          return (
+            <table className="Board">
+              <tbody>
+                { boardRows }
+              </tbody>
+            </table>
+          )
+        }
+      });
+
+      var TileRack = React.createClass({
+        render: function() {
+          var tiles = this.props.playerTiles.map(function(tile) {
+            return (
+              <Tile key={tile.tileId} letter={tile.letter} score={tile.score}>
+              </Tile>
+            );
+          });
+          return (
+            <div className="TileRack">
+              { tiles }
+            </div>
+          )
+        }
+      });
+
+      var Tile = React.createClass({
+        render: function() {
+          return (
+            <div className="Tile" data-played={this.props.played}>
+              <span className="Letter">
+                {this.props.letter}
+              </span><span className="Score">
+                {this.props.score}
+              </span>
+            </div>
+          )
+        }
+      });
+
+      ReactDOM.render(
+        <GameContainer />,
+        document.getElementById('content')
+      );
+    </script>
+  </body>
+</html>

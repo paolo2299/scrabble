@@ -1,0 +1,59 @@
+.Tile {
+  position: relative;
+  top: -2px;
+  right: 1px;
+  width: 32px;
+  height: 32px;
+  background-color: #f6e1a6;
+	background:-webkit-gradient(linear, 100% 100%, 0% 5%, from(#d8bd72), to(#fae1a6));
+  -moz-border-radius: 3px;
+  -webkit-border-radius: 3px;
+  border-radius: 3px;
+  -moz-box-shadow:0px 2px 3px #000;
+  -webkit-box-shadow:0px 2px 3px #000;
+  box-shadow:0px 0px 3px #a000;
+  text-align: center;
+  border-top-width: 1px;
+  border-right-width: 2px;
+  border-bottom-width: 2px;
+  border-left-width: 1px;
+  border-top-style: solid;
+  border-right-style: solid;
+  border-bottom-style: solid;
+  border-left-style: solid;
+  border-top-color: #f8e6b1;
+  border-right-color: #f8e6b1;
+  border-bottom-color: #cab06b;
+  border-left-color: #f8e6b1;
+  user-select: none;
+  -moz-user-select: -moz-none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+}
+
+.TileRack {
+  margin-top: 10px;
+  display: inline-block;
+  padding: 3px;
+  background-color: gray;
+}
+
+.TileRack .Tile {
+  display: inline-block;
+  margin-right: 3px;
+}
+
+.BoardRow {
+  display: block;
+}
+
+.BoardCell {
+  width: 33px;
+  height: 33px;
+  background-color: #266b58;
+  background: -webkit-gradient(linear, 100% 100%, 0% 5%, from(#339966), to(#206955));
+  display: inline-block;
+  border-right: 1px solid #d8d8d8;
+  border-left: 1px solid #d8d8d8;
+  border-top: 1px solid #d8d8d8;
+}
