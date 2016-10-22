@@ -41,11 +41,18 @@
           return initialState;
         },
 
+        onTileRackTileClicked: function(tileId) {
+          if (_.find(this.state.tentativelyPlayedTiles, { playerTileId: tileId })) {
+            return;
+          }
+          this.setState({selectedTileId: tileId});
+        },
+
         render: function() {
           return (
             <div className="GameContainer">
               <Board playedTiles={this.state.playedTiles} playerTiles={this.state.playerTiles} tentativelyPlayedTiles={this.state.tentativelyPlayedTiles}/>
-              <TileRack selectedTileId={this.state.selectedTileId} playerTiles={this.state.playerTiles} tentativelyPlayedTiles={this.state.tentativelyPlayedTiles}/>
+              <TileRack selectedTileId={this.state.selectedTileId} playerTiles={this.state.playerTiles} tentativelyPlayedTiles={this.state.tentativelyPlayedTiles} onTileClicked={this.onTileRackTileClicked}/>
             </div>
           );
         }
@@ -56,7 +63,7 @@
           var tile = null;
           var tileData = _.find(this.props.playedTiles, { 'position': [colIndex, rowIndex] });
           if (tileData) {
-           tile = <Tile key={colIndex} letter={tileData.letter} score={tileData.score} played="true"></Tile>;
+           tile = <Tile key={colIndex} letter={tileData.letter} score={tileData.score}></Tile>;
           }
           return tile;
         },
@@ -69,7 +76,7 @@
           if (tileIndexData) {
             playerTileId = tileIndexData.playerTileId;
             tileData = _.find(this.props.playerTiles, { 'tileId': playerTileId });
-            tile = <Tile letter={tileData.letter} score={tileData.score} tentative="true"></Tile>;
+            tile = <Tile letter={tileData.letter} score={tileData.score} tentative={true}></Tile>;
           }
           return tile;
         },
@@ -105,10 +112,19 @@
       });
 
       var TileRack = React.createClass({
+        onTileClicked: function(tileId) {
+          this.props.onTileClicked(tileId);
+        },
+
         render: function() {
+          let self = this;
           var tiles = this.props.playerTiles.map(function(tile) {
+            let selected = false;
+            if (tile.tileId === self.props.selectedTileId) {
+              selected = true;
+            }
             return (
-              <Tile key={tile.tileId} letter={tile.letter} score={tile.score}>
+              <Tile key={tile.tileId} tileId={tile.tileId} letter={tile.letter} score={tile.score} selected={selected} onTileClicked={self.onTileClicked}>
               </Tile>
             );
           });
@@ -121,13 +137,20 @@
       });
 
       var Tile = React.createClass({
+        handleClick: function(e) {
+          this.props.onTileClicked(this.props.tileId);
+        },
+
         render: function() {
           let className = "Tile";
           if (this.props.tentative) {
-            className += " tentative"
+            className += " tentative";
+          }
+          if (this.props.selected) {
+            className += " selected";
           }
           return (
-            <div className={className}>
+            <div className={className} onClick={this.handleClick}>
               <span className="Letter">
                 {this.props.letter}
               </span><span className="Score">
