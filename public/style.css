@@ -31,8 +31,12 @@
   -khtml-user-select: none;
 }
 
+.Tile.selected {
+  top: -20px;
+}
+
 .TileRack {
-  margin-top: 10px;
+  margin-top: 20px;
   display: inline-block;
   padding: 3px;
   background-color: gray;
@@ -41,6 +45,16 @@
 .TileRack .Tile {
   display: inline-block;
   margin-right: 3px;
+}
+
+.Tile .Letter {
+  font-family: 'Asap';
+  font-size: 26px;
+}
+
+.Tile .Score {
+  font-family: 'Asap';
+  font-size: 11px;
 }
 
 .BoardRow {
