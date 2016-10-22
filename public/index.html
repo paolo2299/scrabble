@@ -30,7 +30,7 @@
               {tileId: 5, letter: "A", score: 1}
             ],
 
-            selectedTileId: 1,
+            selectedTileId: null,
 
             tentativelyPlayedTiles: [
               {playerTileId: 2, position: [5, 1]},
@@ -123,8 +123,12 @@
             if (tile.tileId === self.props.selectedTileId) {
               selected = true;
             }
+            let tentative = false;
+            if (_.find(self.props.tentativelyPlayedTiles, { playerTileId: tile.tileId })) {
+              tentative = true;
+            }
             return (
-              <Tile key={tile.tileId} tileId={tile.tileId} letter={tile.letter} score={tile.score} selected={selected} onTileClicked={self.onTileClicked}>
+              <Tile key={tile.tileId} tileId={tile.tileId} letter={tile.letter} score={tile.score} selected={selected} tentative={tentative} onTileClicked={self.onTileClicked}>
               </Tile>
             );
           });

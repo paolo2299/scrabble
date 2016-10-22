@@ -47,6 +47,10 @@
   margin-right: 3px;
 }
 
+.TileRack .Tile.tentative {
+  top: -20px;
+}
+
 .Tile .Letter {
   font-family: 'Asap';
   font-size: 26px;
