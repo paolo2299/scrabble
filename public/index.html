@@ -51,8 +51,17 @@
         render: function() {
           return (
             <div className="GameContainer">
-              <Board playedTiles={this.state.playedTiles} playerTiles={this.state.playerTiles} tentativelyPlayedTiles={this.state.tentativelyPlayedTiles}/>
-              <TileRack selectedTileId={this.state.selectedTileId} playerTiles={this.state.playerTiles} tentativelyPlayedTiles={this.state.tentativelyPlayedTiles} onTileClicked={this.onTileRackTileClicked}/>
+              <Board
+                playedTiles={this.state.playedTiles}
+                playerTiles={this.state.playerTiles}
+                tentativelyPlayedTiles={this.state.tentativelyPlayedTiles}
+              />
+              <TileRack
+                selectedTileId={this.state.selectedTileId}
+                playerTiles={this.state.playerTiles}
+                tentativelyPlayedTiles={this.state.tentativelyPlayedTiles}
+                onTileClicked={this.onTileRackTileClicked}
+              />
             </div>
           );
         }
@@ -63,7 +72,11 @@
           var tile = null;
           var tileData = _.find(this.props.playedTiles, { 'position': [colIndex, rowIndex] });
           if (tileData) {
-           tile = <Tile key={colIndex} letter={tileData.letter} score={tileData.score}></Tile>;
+            tile = <Tile
+              key={colIndex}
+              letter={tileData.letter}
+              score={tileData.score}
+            />;
           }
           return tile;
         },
@@ -76,7 +89,11 @@
           if (tileIndexData) {
             playerTileId = tileIndexData.playerTileId;
             tileData = _.find(this.props.playerTiles, { 'tileId': playerTileId });
-            tile = <Tile letter={tileData.letter} score={tileData.score} tentative={true}></Tile>;
+            tile = <Tile
+              letter={tileData.letter}
+              score={tileData.score}
+              tentative={true}
+            />;
           }
           return tile;
         },
@@ -128,8 +145,15 @@
               tentative = true;
             }
             return (
-              <Tile key={tile.tileId} tileId={tile.tileId} letter={tile.letter} score={tile.score} selected={selected} tentative={tentative} onTileClicked={self.onTileClicked}>
-              </Tile>
+              <Tile
+                key={tile.tileId}
+                tileId={tile.tileId}
+                letter={tile.letter}
+                score={tile.score}
+                selected={selected}
+                tentative={tentative}
+                onTileClicked={self.onTileClicked}
+              />
             );
           });
           return (
