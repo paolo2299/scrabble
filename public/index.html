@@ -85,7 +85,10 @@
           var tile = null;
           var tileData = null;
           var playerTileId = null;
-          var tileIndexData = _.find(this.props.tentativelyPlayedTiles, { 'position': [colIndex, rowIndex] });
+          var tileIndexData = _.find(
+            this.props.tentativelyPlayedTiles,
+            { 'position': [colIndex, rowIndex] }
+          );
           if (tileIndexData) {
             playerTileId = tileIndexData.playerTileId;
             tileData = _.find(this.props.playerTiles, { 'tileId': playerTileId });
