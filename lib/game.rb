@@ -9,6 +9,13 @@ class Game
 
   attr_reader :current_player
 
+  def self.new_game
+    board = Board.new
+    tile_bag = TileBag.new
+    tile_bag.shuffle!
+    Game.new(board, tile_bag)
+  end
+
   def initialize(board, starting_player = nil)
     @board = board
     @current_player = (starting_player || :player1)
@@ -19,7 +26,7 @@ class Game
     play_tiles!(positioned_tiles)
     next_players_turn!
   end
-  
+
   def pass!
     next_players_turn!
   end
@@ -92,7 +99,7 @@ class Game
     board_copy = board.copy
     positioned_tiles.each do |positioned_tile|
       board_copy.place_tile!(
-        positioned_tile.tile, 
+        positioned_tile.tile,
         positioned_tile.position
       )
     end
@@ -124,8 +131,7 @@ class PositionedTile
   end
 
   def ==(other_positioned_tile)
-    self.tile.character == other_positioned_tile.character &&
+    self.tile.letter == other_positioned_tile.letter &&
       self.position == other_positioned_tile.position
   end
 end
-

@@ -13,10 +13,12 @@ class Board
 
   def self.load_from_string!(string)
     board = new
+    tile_id = 0
     string.strip.split("\n").each_with_index do |row_string, row_idx|
       row_string.each_char.with_index do |char, col_idx|
         if char != "-"
-          board.place_tile!(Tile.new(char), [col_idx, row_idx])
+          board.place_tile!(Tile.new(tile_id, char), [col_idx, row_idx])
+          tile_id += 1
         end
       end
     end
@@ -63,20 +65,20 @@ class Board
 
   def place_tile!(tile, position)
     unless (0..(WIDTH - 1)).include?(position[0])
-      raise InvalidTilePlacementError, "column index #{position[0]} is not between #{0} and #{WIDTH - 1}" 
+      raise InvalidTilePlacementError, "column index #{position[0]} is not between #{0} and #{WIDTH - 1}"
     end
     unless (0..(HEIGHT - 1)).include?(position[1])
-      raise InvalidTilePlacementError, "row index #{position[1]} is not between #{0} and #{HEIGHT - 1}" 
+      raise InvalidTilePlacementError, "row index #{position[1]} is not between #{0} and #{HEIGHT - 1}"
     end
     unless @tiles[position[1]][position[0]].nil?
-      raise InvalidTilePlacementError, "there is already a tile at position [#{position[0]}, #{position[1]}]" 
+      raise InvalidTilePlacementError, "there is already a tile at position [#{position[0]}, #{position[1]}]"
     end
     @tiles[position[1]][position[0]] = tile
   end
 
   def all_played_words
     played_words = []
-    rows = (0..(HEIGHT - 1)).map do |row_num| 
+    rows = (0..(HEIGHT - 1)).map do |row_num|
       @tiles[row_num]
     end
     cols = (0..(WIDTH - 1)).map do |col_num|
@@ -96,7 +98,7 @@ class Board
         if tile.nil?
           s += "-"
         else
-          s += tile.character.upcase
+          s += tile.letter.upcase
         end
       end
       s += "\n"
@@ -118,7 +120,7 @@ class Board
           word = ""
           start_position = nil
         else
-          word += tile.character
+          word += tile.letter
           if !start_position
             start_position = index2
           end
