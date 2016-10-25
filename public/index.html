@@ -14,12 +14,26 @@
   <body>
     <div id="content"></div>
     <script type="text/babel">
+      var Util = {
+        findByAttribute: function(collection, attribute, value) {
+          return _.find(
+            collection,
+            function(x){ return _.isEqual(x[attribute], value); }
+          );
+        }
+      }
+
       var GameContainer = React.createClass({
+        findByPosition(tiles, position) {
+          return Util.findByAttribute(tiles, 'position', position)
+        },
+
         getInitialState: function() {
           var initialState = {
             playedTiles: [
-              {letter: "A", score: 1, position: [1, 1]},
-              {letter: "Z", score: 10, position: [2, 2]}
+              {tileId: 100, letter: "B", score: 2, position: [1, 1]},
+              {tileId: 101, letter: "A", score: 1, position: [1, 2]},
+              {tileId: 103, letter: "T", score: 1, position: [1, 3]}
             ],
 
             playerTiles: [
@@ -32,20 +46,35 @@
 
             selectedTileId: null,
 
-            tentativelyPlayedTiles: [
-              {playerTileId: 2, position: [5, 1]},
-              {playerTileId: 3, position: [5, 3]},
-              {playerTileId: 4, position: [5, 2]}
-            ]
+            tentativelyPlayedTiles: []
           };
           return initialState;
         },
 
-        onTileRackTileClicked: function(tileId) {
-          if (_.find(this.state.tentativelyPlayedTiles, { playerTileId: tileId })) {
+        handleTileRackTileClicked: function(tileId) {
+          if (_.find(this.state.tentativelyPlayedTiles, { tileId: tileId })) {
             return;
           }
           this.setState({selectedTileId: tileId});
+        },
+
+        handleBoardCellClicked: function(colIndex, rowIndex) {
+          let allTiles = this.state.tentativelyPlayedTiles + this.state.playedTiles;
+          if (this.findByPosition(allTiles, [colIndex, rowIndex])) {
+            return;
+          }
+          if (!this.state.selectedTileId) {
+            return;
+          }
+          let selectedTile = _.find(this.state.playerTiles, {tileId: this.state.selectedTileId});
+          selectedTile.position = [colIndex, rowIndex];
+          this.setState({tentativelyPlayedTiles: this.state.tentativelyPlayedTiles.concat([selectedTile])});
+          this.setState({selectedTileId: null});
+        },
+
+        reset: function() {
+          this.setState({tentativelyPlayedTiles: []});
+          this.setState({selectedTileId: null});
         },
 
         render: function() {
@@ -55,27 +84,40 @@
                 playedTiles={this.state.playedTiles}
                 playerTiles={this.state.playerTiles}
                 tentativelyPlayedTiles={this.state.tentativelyPlayedTiles}
+                onBoardCellClicked={this.handleBoardCellClicked}
               />
               <TileRack
                 selectedTileId={this.state.selectedTileId}
                 playerTiles={this.state.playerTiles}
                 tentativelyPlayedTiles={this.state.tentativelyPlayedTiles}
-                onTileClicked={this.onTileRackTileClicked}
+                onTileClicked={this.handleTileRackTileClicked}
               />
+              <ResetButton onClick={this.reset}>
+                reset
+              </ResetButton>
             </div>
           );
         }
       });
 
       var Board = React.createClass({
+        findByPosition(tiles, position) {
+          return Util.findByAttribute(tiles, 'position', position)
+        },
+
+        doNothing: function() {
+          return;
+        },
+
         findPlayedTile: function(colIndex, rowIndex) {
           var tile = null;
-          var tileData = _.find(this.props.playedTiles, { 'position': [colIndex, rowIndex] });
+          var tileData = this.findByPosition(this.props.playedTiles, [colIndex, rowIndex]);
           if (tileData) {
             tile = <Tile
-              key={colIndex}
+              key={tileData.tileId}
               letter={tileData.letter}
               score={tileData.score}
+              onTileClicked={this.doNothing}
             />;
           }
           return tile;
@@ -84,21 +126,23 @@
         findTentativelyPlayedTile: function(colIndex, rowIndex) {
           var tile = null;
           var tileData = null;
-          var playerTileId = null;
-          var tileIndexData = _.find(
-            this.props.tentativelyPlayedTiles,
-            { 'position': [colIndex, rowIndex] }
-          );
+          var tileId = null;
+          var tileIndexData = this.findByPosition(this.props.tentativelyPlayedTiles, [colIndex, rowIndex]);
           if (tileIndexData) {
-            playerTileId = tileIndexData.playerTileId;
-            tileData = _.find(this.props.playerTiles, { 'tileId': playerTileId });
+            tileId = tileIndexData.tileId;
+            tileData = _.find(this.props.playerTiles, { 'tileId': tileId });
             tile = <Tile
               letter={tileData.letter}
               score={tileData.score}
               tentative={true}
+              onTileClicked={this.doNothing}
             />;
           }
           return tile;
+        },
+
+        handleCellClick: function(colIndex, rowIndex) {
+          this.props.onBoardCellClicked(colIndex, rowIndex);
         },
 
         render: function() {
@@ -109,9 +153,9 @@
               var tile = self.findPlayedTile(colIndex, rowIndex) ||
                          self.findTentativelyPlayedTile(colIndex, rowIndex);
               return (
-                <td className="BoardCell" key={colIndex}>
+                <BoardCell key={colIndex} colIndex={colIndex} rowIndex={rowIndex} onCellClicked={self.handleCellClick}>
                   { tile }
-                </td>
+                </BoardCell>
               );
               return square;
             });
@@ -131,6 +175,20 @@
         }
       });
 
+      var BoardCell = React.createClass({
+        handleClick: function() {
+          this.props.onCellClicked(this.props.colIndex, this.props.rowIndex);
+        },
+
+        render: function() {
+          return (
+            <td className="BoardCell" onClick={this.handleClick}>
+              { this.props.children }
+            </td>
+          )
+        }
+      });
+
       var TileRack = React.createClass({
         onTileClicked: function(tileId) {
           this.props.onTileClicked(tileId);
@@ -144,7 +202,7 @@
               selected = true;
             }
             let tentative = false;
-            if (_.find(self.props.tentativelyPlayedTiles, { playerTileId: tile.tileId })) {
+            if (_.find(self.props.tentativelyPlayedTiles, { tileId: tile.tileId })) {
               tentative = true;
             }
             return (
@@ -188,6 +246,20 @@
                 {this.props.score}
               </span>
             </div>
+          )
+        }
+      });
+
+      var ResetButton = React.createClass({
+        handleClick: function() {
+          this.props.onClick();
+        },
+
+        render: function() {
+          return (
+            <button className="ResetButton" onClick={this.handleClick}>
+              Reset Tiles
+            </button>
           )
         }
       });

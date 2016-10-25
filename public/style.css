@@ -33,6 +33,11 @@
 
 .Tile.selected {
   top: -20px;
+  color: green;
+}
+
+.Tile.tentative {
+  color: red;
 }
 
 .TileRack {
@@ -63,6 +68,11 @@
 
 .BoardRow {
   display: block;
+}
+
+.ResetButton {
+  font-size: 20px;
+  margin-left: 20px;
 }
 
 .BoardCell {
