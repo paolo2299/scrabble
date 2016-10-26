@@ -3,8 +3,13 @@ require 'board'
 require 'tile'
 
 describe Board do
+
+  def tile(letter)
+    tile_bag.take_tile_with_letter!(letter)
+  end
+
+  let(:tile_bag) { TileBag.new }
   subject { Board.new }
-  let(:tile_id) { 0 }
 
   describe ".load_from_string!" do
     it "should load the stirng correctly" do
@@ -36,14 +41,14 @@ describe Board do
     end
 
     it "should return false if a tile has been played" do
-      subject.place_tile!(Tile.new(tile_id, "Q"), [2, 2])
+      subject.place_tile!(tile("Q"), [2, 2])
       expect(subject.empty?).to eq(false)
     end
   end
 
   describe "tile" do
     it "should return the correct tile for the specified position" do
-      subject.place_tile!(Tile.new(tile_id, "Q"), [2, 3])
+      subject.place_tile!(tile("Q"), [2, 3])
       expect(subject.tile([2, 3]).letter).to eq("Q")
       expect(subject.tile([2, 4])).to be_nil
     end
@@ -52,7 +57,7 @@ describe Board do
   describe "place_tile!" do
     context "with an empty board" do
       it "should place the tile in the correct place" do
-        subject.place_tile!(Tile.new(tile_id, "Q"), [2, 1])
+        subject.place_tile!(tile("Q"), [2, 1])
         expected = %Q{
 ---------------
 --Q------------
@@ -74,28 +79,28 @@ describe Board do
       end
 
       it "should raise an error if a tile is placed off the right side of the board" do
-        expect { subject.place_tile!(Tile.new(tile_id, "Q"), [15, 0]) }.to raise_error do |error|
+        expect { subject.place_tile!(tile("Q"), [15, 0]) }.to raise_error do |error|
           expect(error).to be_a Board::InvalidTilePlacementError
           expect(error.message).to match("column index 15 is not between 0 and 14")
         end
       end
 
       it "should raise an error if a tile is placed off the left side of the board" do
-        expect { subject.place_tile!(Tile.new(tile_id, "Q"), [-1, 0]) }.to raise_error do |error|
+        expect { subject.place_tile!(tile("Q"), [-1, 0]) }.to raise_error do |error|
           expect(error).to be_a Board::InvalidTilePlacementError
           expect(error.message).to match("column index -1 is not between 0 and 14")
         end
       end
 
       it "should raise an error if a tile is placed off the bottom of the board" do
-        expect { subject.place_tile!(Tile.new(tile_id, "Q"), [0, 15]) }.to raise_error do |error|
+        expect { subject.place_tile!(tile("Q"), [0, 15]) }.to raise_error do |error|
           expect(error).to be_a Board::InvalidTilePlacementError
           expect(error.message).to match("row index 15 is not between 0 and 14")
         end
       end
 
       it "should raise an error if a tile is placed off the top of the board" do
-        expect { subject.place_tile!(Tile.new(tile_id, "Q"), [0, -1]) }.to raise_error do |error|
+        expect { subject.place_tile!(tile("Q"), [0, -1]) }.to raise_error do |error|
           expect(error).to be_a Board::InvalidTilePlacementError
           expect(error.message).to match("row index -1 is not between 0 and 14")
         end
@@ -126,7 +131,7 @@ describe Board do
       subject { Board.load_from_string!(board_string) }
 
       it "should place the tile in the correct place and keep the existing tiles" do
-        subject.place_tile!(Tile.new(tile_id, "Q"), [4, 5])
+        subject.place_tile!(tile("Q"), [4, 5])
         expected = %Q{
 --C------------
 -PARROT--------
@@ -148,7 +153,7 @@ describe Board do
       end
 
       it "should raise an error if a tile is placed on an exiting tile" do
-        expect { subject.place_tile!(Tile.new(tile_id, "Q"), [2, 0]) }.to raise_error do |error|
+        expect { subject.place_tile!(tile("Q"), [2, 0]) }.to raise_error do |error|
           expect(error).to be_a Board::InvalidTilePlacementError
           expect(error.message).to eq("there is already a tile at position [2, 0]")
         end
@@ -187,7 +192,7 @@ describe Board do
     it "should return a board that can be edited independently of the original" do
       old_subject_string = subject.to_s
       subject_copy = subject.copy
-      subject_copy.place_tile!(Tile.new(tile_id, "Q"), [0, 0])
+      subject_copy.place_tile!(tile("Q"), [0, 0])
       expect(subject_copy.to_s).to_not eq(old_subject_string)
       expect(subject.to_s).to eq(old_subject_string)
     end
@@ -239,10 +244,10 @@ describe Board do
       %Q{
 -C---S---------
 PARROT---------
--T---R---------
+-N---R---------
 -----A---------
 -----T--L------
-----PARROT-----
+----CARTON-----
 --------T------
 --------T------
 --------E------

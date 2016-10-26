@@ -13,12 +13,11 @@ class Board
 
   def self.load_from_string!(string)
     board = new
-    tile_id = 0
+    tile_bag = TileBag.new
     string.strip.split("\n").each_with_index do |row_string, row_idx|
       row_string.each_char.with_index do |char, col_idx|
         if char != "-"
-          board.place_tile!(Tile.new(tile_id, char), [col_idx, row_idx])
-          tile_id += 1
+          board.place_tile!(tile_bag.take_tile_with_letter!(char), [col_idx, row_idx])
         end
       end
     end

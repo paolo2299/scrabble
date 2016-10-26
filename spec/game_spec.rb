@@ -6,7 +6,7 @@ require 'game'
 describe Game do
 
   def tile(letter)
-    tile_bag.find_tile!(letter)
+    tile_bag.take_tile_with_letter!(letter)
   end
 
   let(:board) { Board.new }

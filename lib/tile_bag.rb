@@ -53,7 +53,7 @@ class TileBag
     drawn
   end
 
-  def find_tile!(letter)
+  def take_tile_with_letter!(letter)
     tile = tiles.find {|tile| tile.letter == letter.upcase}
     if tile
       @tiles -= [tile]
