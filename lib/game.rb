@@ -12,12 +12,12 @@ class Game
   def self.new_game
     board = Board.new
     tile_bag = TileBag.new
-    tile_bag.shuffle!
     Game.new(board, tile_bag)
   end
 
-  def initialize(board, starting_player = nil)
+  def initialize(board, tile_bag, starting_player = nil)
     @board = board
+    @tile_bag = tile_bag
     @current_player = (starting_player || :player1)
   end
 

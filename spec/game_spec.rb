@@ -13,7 +13,7 @@ describe Game do
   let(:player) { :player1 }
   let(:tile_bag) { TileBag.new }
   let(:tile_id) { 0 }
-  subject { Game.new(board) }
+  subject { Game.new(board, tile_bag) }
 
   describe "play!" do
     context "when the current player is player1" do
@@ -29,7 +29,7 @@ describe Game do
     end
 
     context "when the current player is player2" do
-      subject { Game.new(board, :player2) }
+      subject { Game.new(board, tile_bag, :player2) }
 
       it "should cause the current player to be player1" do
         tiles = [
@@ -201,7 +201,7 @@ describe Game do
     end
 
     context "when the current player is player2" do
-      subject { Game.new(board, :player2) }
+      subject { Game.new(board, tile_bag, :player2) }
 
       it "should cause the current player to be player1" do
         subject.pass!
