@@ -7,21 +7,24 @@ class Game
     PARROT
   }
 
-  attr_reader :current_player
+  attr_reader :player
+  attr_reader :tile_bag
+  attr_reader :board
 
   def self.new_game
     board = Board.new
     tile_bag = TileBag.new
-    Game.new(board, tile_bag)
+    player1 = Player.new_player1
+    Game.new(board, tile_bag, player1)
   end
 
-  def initialize(board, tile_bag, starting_player = nil)
+  def initialize(board, tile_bag, player)
     @board = board
     @tile_bag = tile_bag
-    @current_player = (starting_player || :player1)
+    @player = player
   end
 
-  def play!(player, positioned_tiles)
+  def play!(positioned_tiles)
     validate_move!(positioned_tiles)
     play_tiles!(positioned_tiles)
     next_players_turn!
@@ -33,21 +36,19 @@ class Game
 
   def to_hash
     {
-      player: current_player,
+      player: player.to_hash,
       board: board.to_s
     }
   end
 
   private
 
-  attr_reader :board
-
   def next_players_turn!
-    if @current_player == :player1
-      @current_player = :player2
-    else
-      @current_player = :player1
-    end
+    #if @current_player == :player1
+    #  @current_player = :player2
+    #else
+    #  @current_player = :player1
+    #end
   end
 
   def play_tiles!(positioned_tiles)
@@ -128,10 +129,5 @@ class PositionedTile
   def initialize(tile, position)
     @tile = tile
     @position = position
-  end
-
-  def ==(other_positioned_tile)
-    self.tile.letter == other_positioned_tile.letter &&
-      self.position == other_positioned_tile.position
   end
 end

@@ -1,29 +1,28 @@
 require 'spec_helper'
 require 'board'
 require 'tile'
+require 'tile_bag'
+require 'player'
 require 'game'
 
 describe Game do
 
   def tile(letter)
-    tile_bag.take_tile_with_letter!(letter)
+    subject.tile_bag.take_tile_with_letter!(letter)
   end
 
-  let(:board) { Board.new }
-  let(:player) { :player1 }
-  let(:tile_bag) { TileBag.new }
-  let(:tile_id) { 0 }
-  subject { Game.new(board, tile_bag) }
+  subject { Game.new_game }
 
   describe "play!" do
     context "when the current player is player1" do
       it "should cause the current player to be player2" do
+        pending("intriduction of 2 player games")
         tiles = [
           PositionedTile.new(tile("c"), [7, 5]),
           PositionedTile.new(tile("a"), [7, 6]),
           PositionedTile.new(tile("t"), [7, 7]),
         ]
-        subject.play!(player, tiles)
+        subject.play!(tiles)
         expect(subject.to_hash.fetch(:player)).to eq(:player2)
       end
     end
@@ -32,12 +31,13 @@ describe Game do
       subject { Game.new(board, tile_bag, :player2) }
 
       it "should cause the current player to be player1" do
+        pending("intriduction of 2 player games")
         tiles = [
           PositionedTile.new(tile("c"), [7, 5]),
           PositionedTile.new(tile("a"), [7, 6]),
           PositionedTile.new(tile("t"), [7, 7]),
         ]
-        subject.play!(player, tiles)
+        subject.play!(tiles)
         expect(subject.to_hash.fetch(:player)).to eq(:player1)
       end
     end
@@ -49,7 +49,7 @@ describe Game do
           PositionedTile.new(tile("a"), [7, 6]),
           PositionedTile.new(tile("t"), [7, 7]),
         ]
-        subject.play!(player, tiles)
+        subject.play!(tiles)
         expect(subject.to_hash.fetch(:board)).to eq(%Q{
 ---------------
 ---------------
@@ -75,10 +75,10 @@ describe Game do
           PositionedTile.new(tile("a"), [6, 6]),
           PositionedTile.new(tile("t"), [6, 7]),
         ]
-        expect { subject.play!(player, tiles) }.to raise_error do |error|
+        expect { subject.play!(tiles) }.to raise_error do |error|
           expect(error).to be_a(InvalidMove::FirstMoveNotOnCenterError)
         end
-        expect(board).to be_empty
+        expect(subject.board).to be_empty
       end
 
       it "should raise a relevant exception if the tiles are not all in the same row or same column" do
@@ -87,10 +87,10 @@ describe Game do
           PositionedTile.new(tile("a"), [7, 6]),
           PositionedTile.new(tile("t"), [7, 7]),
         ]
-        expect { subject.play!(player, tiles) }.to raise_error do |error|
+        expect { subject.play!(tiles) }.to raise_error do |error|
           expect(error).to be_a(InvalidMove::NotInSameRowOrSameColumnError)
         end
-        expect(board).to be_empty
+        expect(subject.board).to be_empty
       end
 
       it "should raise a relevant exception if there is a gap in the word" do
@@ -101,10 +101,10 @@ describe Game do
           PositionedTile.new(tile("c"), [7, 9]),
           PositionedTile.new(tile("h"), [7, 10]),
         ]
-        expect { subject.play!(player, tiles) }.to raise_error do |error|
+        expect { subject.play!(tiles) }.to raise_error do |error|
           expect(error).to be_a(InvalidMove::GapError)
         end
-        expect(board).to be_empty
+        expect(subject.board).to be_empty
       end
 
       it "should raise a relevant exception if it is not a real word" do
@@ -113,14 +113,22 @@ describe Game do
           PositionedTile.new(tile("j"), [7, 6]),
           PositionedTile.new(tile("k"), [7, 7]),
         ]
-        expect { subject.play!(player, tiles) }.to raise_error do |error|
+        expect { subject.play!(tiles) }.to raise_error do |error|
           expect(error).to be_a(InvalidMove::NotAWordError)
         end
-        expect(board).to be_empty
+        expect(subject.board).to be_empty
       end
     end
 
     context "making a move on an already populated board" do
+      subject {
+        Game.new(board, tile_bag, player)
+      }
+
+      let(:tile_bag) { TileBag.new }
+
+      let(:player) { Player.new_player1 }
+
       let(:board) do
         Board.load_from_string!(%Q{
 ---------------
@@ -149,7 +157,7 @@ describe Game do
           PositionedTile.new(tile("o"), [3, 9]),
           PositionedTile.new(tile("t"), [4, 10]),
         ]
-        expect { subject.play!(player, tiles) }.to raise_error do |error|
+        expect { subject.play!(tiles) }.to raise_error do |error|
           expect(error).to be_a(InvalidMove::NotInSameRowOrSameColumnError)
         end
       end
@@ -162,7 +170,7 @@ describe Game do
           PositionedTile.new(tile("o"), [3, 9]),
           PositionedTile.new(tile("t"), [3, 11]),
         ]
-        expect { subject.play!(player, tiles) }.to raise_error do |error|
+        expect { subject.play!(tiles) }.to raise_error do |error|
           expect(error).to be_a(InvalidMove::GapError)
         end
       end
@@ -173,7 +181,7 @@ describe Game do
           PositionedTile.new(tile("d"), [6, 5]),
           PositionedTile.new(tile("g"), [6, 7]),
         ]
-        expect { subject.play!(player, tiles) }.to raise_error do |error|
+        expect { subject.play!(tiles) }.to raise_error do |error|
           expect(error).to be_a(InvalidMove::NotAWordError)
         end
       end
@@ -185,7 +193,7 @@ describe Game do
           PositionedTile.new(tile("o"), [0, 2]),
           PositionedTile.new(tile("g"), [0, 3]),
         ]
-        expect { subject.play!(player, tiles) }.to raise_error do |error|
+        expect { subject.play!(tiles) }.to raise_error do |error|
           expect(error).to be_a(InvalidMove::DidNotBuildOnExistingWordsError)
         end
       end
@@ -195,6 +203,7 @@ describe Game do
   describe "pass!" do
     context "when the current player is player1" do
       it "should cause the current player to be player2" do
+        pending("intriduction of 2 player games")
         subject.pass!
         expect(subject.to_hash.fetch(:player)).to eq(:player2)
       end
@@ -204,6 +213,7 @@ describe Game do
       subject { Game.new(board, tile_bag, :player2) }
 
       it "should cause the current player to be player1" do
+        pending("intriduction of 2 player games")
         subject.pass!
         expect(subject.to_hash.fetch(:player)).to eq(:player1)
       end

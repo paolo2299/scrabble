@@ -8,7 +8,7 @@ describe Board do
     tile_bag.take_tile_with_letter!(letter)
   end
 
-  let(:tile_bag) { TileBag.new }
+  let(:tile_bag) { TileBag.new  }
   subject { Board.new }
 
   describe ".load_from_string!" do
