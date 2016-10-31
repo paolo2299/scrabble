@@ -2,11 +2,6 @@ require 'sinatra'
 require 'json'
 require_relative './lib/game'
 
-get "/" do
-  game = Game.new_game
-  game.to_hash.to_json
-end
-
 post "/games" do
   game = Game.new_game
   game.to_hash.to_json
