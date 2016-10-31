@@ -39,6 +39,10 @@ class TileRack
     tiles << tile
   end
 
+  def count
+    tiles.count
+  end
+
   def to_a
     rack = Array.new(CAPACITY)
     tiles.each_with_index do |tile, index|
