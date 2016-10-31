@@ -42,6 +42,7 @@ class Game
   def play!(tile_ids, positions)
     validate_move!(tile_ids, positions)
     play_tiles!(tile_ids, positions)
+    refill_player_tile_rack!
     next_players_turn!
   end
 
@@ -143,6 +144,10 @@ class Game
         raise InvalidMove::DidNotBuildOnExistingWordsError.new
       end
     end
+  end
+
+  def refill_player_tile_rack!
+    player.fill_tile_rack!(tile_bag)
   end
 end
 
