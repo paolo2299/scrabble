@@ -1,4 +1,4 @@
-require 'tile'
+require_relative './tile'
 
 class TileBag
   TILE_FREQUENCIES = [

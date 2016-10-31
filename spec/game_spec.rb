@@ -7,22 +7,59 @@ require 'game'
 
 describe Game do
 
-  def tile(letter)
-    subject.tile_bag.take_tile_with_letter!(letter)
+  let(:game_id) { "123" }
+
+  let(:board) { Board.new }
+
+  let(:tile_bag) { TileBag.new }
+
+  let(:player_tiles) {
+    [
+      tile_bag.take_tile_with_letter!("C"),
+      tile_bag.take_tile_with_letter!("A"),
+      tile_bag.take_tile_with_letter!("T"),
+      tile_bag.take_tile_with_letter!("C"),
+      tile_bag.take_tile_with_letter!("H"),
+      tile_bag.take_tile_with_letter!("J"),
+      tile_bag.take_tile_with_letter!("K")
+    ]
+  }
+
+  let(:c1) { player_tiles[0] }
+  let(:a) { player_tiles[1] }
+  let(:t) { player_tiles[2] }
+  let(:c2) { player_tiles[3] }
+  let(:h) { player_tiles[4] }
+  let(:j) { player_tiles[5] }
+  let(:k) { player_tiles[6] }
+
+  let(:tile_rack) do
+    rack = TileRack.new
+    player_tiles.each do |tile|
+      rack << tile
+    end
+    rack
   end
 
-  subject { Game.new_game }
+  let(:player) { Player.new(Player::PLAYER1, tile_rack) }
+
+  subject { Game.new(game_id, board, tile_bag, player) }
 
   describe "play!" do
     context "when the current player is player1" do
       it "should cause the current player to be player2" do
-        pending("intriduction of 2 player games")
-        tiles = [
-          PositionedTile.new(tile("c"), [7, 5]),
-          PositionedTile.new(tile("a"), [7, 6]),
-          PositionedTile.new(tile("t"), [7, 7]),
+        pending("introduction of 2 player games")
+        tile_ids = [
+          c1.id,
+          a.id,
+          t.id
         ]
-        subject.play!(tiles)
+        positions = [
+          [7, 5],
+          [7, 6],
+          [7, 7]
+        ]
+        subject.play!(tile_ids, positions)
         expect(subject.to_hash.fetch(:player)).to eq(:player2)
       end
     end
@@ -44,13 +81,18 @@ describe Game do
 
     context "making the first move of the game" do
       it "should play the tiles if it is a real word crossing the center square" do
-        tiles = [
-          PositionedTile.new(tile("c"), [7, 5]),
-          PositionedTile.new(tile("a"), [7, 6]),
-          PositionedTile.new(tile("t"), [7, 7]),
+        tile_ids = [
+          c1.id,
+          a.id,
+          t.id
         ]
-        subject.play!(tiles)
-        expect(subject.to_hash.fetch(:board)).to eq(%Q{
+        positions = [
+          [7, 5],
+          [7, 6],
+          [7, 7]
+        ]
+        subject.play!(tile_ids, positions)
+        expect(subject.board.to_s).to eq(%Q{
 ---------------
 ---------------
 ---------------
@@ -70,50 +112,72 @@ describe Game do
       end
 
       it "should raise a relevant exception if it does not use the center square" do
-        tiles = [
-          PositionedTile.new(tile("c"), [6, 5]),
-          PositionedTile.new(tile("a"), [6, 6]),
-          PositionedTile.new(tile("t"), [6, 7]),
+        tile_ids = [
+          c1.id,
+          a.id,
+          t.id
         ]
-        expect { subject.play!(tiles) }.to raise_error do |error|
+        positions = [
+          [6, 5],
+          [6, 6],
+          [6, 7]
+        ]
+        expect { subject.play!(tile_ids, positions) }.to raise_error do |error|
           expect(error).to be_a(InvalidMove::FirstMoveNotOnCenterError)
         end
         expect(subject.board).to be_empty
       end
 
       it "should raise a relevant exception if the tiles are not all in the same row or same column" do
-        tiles = [
-          PositionedTile.new(tile("c"), [6, 5]),
-          PositionedTile.new(tile("a"), [7, 6]),
-          PositionedTile.new(tile("t"), [7, 7]),
+        tile_ids = [
+          c1.id,
+          a.id,
+          t.id
         ]
-        expect { subject.play!(tiles) }.to raise_error do |error|
+        positions = [
+          [6, 5],
+          [7, 6],
+          [7, 7]
+        ]
+        expect { subject.play!(tile_ids, positions) }.to raise_error do |error|
           expect(error).to be_a(InvalidMove::NotInSameRowOrSameColumnError)
         end
         expect(subject.board).to be_empty
       end
 
       it "should raise a relevant exception if there is a gap in the word" do
-        tiles = [
-          PositionedTile.new(tile("c"), [7, 5]),
-          PositionedTile.new(tile("a"), [7, 6]),
-          PositionedTile.new(tile("t"), [7, 7]),
-          PositionedTile.new(tile("c"), [7, 9]),
-          PositionedTile.new(tile("h"), [7, 10]),
+        tile_ids = [
+          c1.id,
+          a.id,
+          t.id,
+          c2.id,
+          h.id
         ]
-        expect { subject.play!(tiles) }.to raise_error do |error|
+        positions = [
+          [7, 5],
+          [7, 6],
+          [7, 7],
+          [7, 9],
+          [7, 10]
+        ]
+        expect { subject.play!(tile_ids, positions) }.to raise_error do |error|
           expect(error).to be_a(InvalidMove::GapError)
         end
         expect(subject.board).to be_empty
       end
 
       it "should raise a relevant exception if it is not a real word" do
-        tiles = [
-          PositionedTile.new(tile("h"), [7, 5]),
-          PositionedTile.new(tile("j"), [7, 6]),
-          PositionedTile.new(tile("k"), [7, 7]),
+        tile_ids = [
+          h.id,
+          j.id,
+          k.id
         ]
-        expect { subject.play!(tiles) }.to raise_error do |error|
+        positions = [
+          [7, 5],
+          [7, 6],
+          [7, 7]
+        ]
+        expect { subject.play!(tile_ids, positions) }.to raise_error do |error|
           expect(error).to be_a(InvalidMove::NotAWordError)
         end
         expect(subject.board).to be_empty
@@ -121,13 +185,26 @@ describe Game do
     end
 
     context "making a move on an already populated board" do
-      subject {
-        Game.new(board, tile_bag, player)
+
+      let(:player_tiles) {
+        [
+          tile_bag.take_tile_with_letter!("P"),
+          tile_bag.take_tile_with_letter!("R"),
+          tile_bag.take_tile_with_letter!("R"),
+          tile_bag.take_tile_with_letter!("O"),
+          tile_bag.take_tile_with_letter!("T"),
+          tile_bag.take_tile_with_letter!("D"),
+          tile_bag.take_tile_with_letter!("G")
+        ]
       }
 
-      let(:tile_bag) { TileBag.new }
-
-      let(:player) { Player.new_player1 }
+      let(:p) { player_tiles[0] }
+      let(:r1) { player_tiles[1] }
+      let(:r2) { player_tiles[2] }
+      let(:o) { player_tiles[3] }
+      let(:t) { player_tiles[4] }
+      let(:d) { player_tiles[5] }
+      let(:g) { player_tiles[6] }
 
       let(:board) do
         Board.load_from_string!(%Q{
@@ -146,54 +223,76 @@ describe Game do
 ---------------
 ---------------
 ---------------
-        })
+        }, tile_bag)
       end
 
       it "should raise a relevant exception if the tiles are not all in the same row or same column" do
-        tiles = [
-          PositionedTile.new(tile("p"), [3, 5]),
-          PositionedTile.new(tile("r"), [3, 7]),
-          PositionedTile.new(tile("r"), [3, 8]),
-          PositionedTile.new(tile("o"), [3, 9]),
-          PositionedTile.new(tile("t"), [4, 10]),
+        tile_ids = [
+          p.id,
+          r1.id,
+          r2.id,
+          o.id,
+          t.id
         ]
-        expect { subject.play!(tiles) }.to raise_error do |error|
+        positions = [
+          [3, 5],
+          [3, 7],
+          [3, 8],
+          [3, 9],
+          [4, 10]
+        ]
+        expect { subject.play!(tile_ids, positions) }.to raise_error do |error|
           expect(error).to be_a(InvalidMove::NotInSameRowOrSameColumnError)
         end
       end
 
       it "should raise a relevant exception if there is a gap in the word" do
-        tiles = [
-          PositionedTile.new(tile("p"), [3, 5]),
-          PositionedTile.new(tile("r"), [3, 7]),
-          PositionedTile.new(tile("r"), [3, 8]),
-          PositionedTile.new(tile("o"), [3, 9]),
-          PositionedTile.new(tile("t"), [3, 11]),
+        tile_ids = [
+          p.id,
+          r1.id,
+          r2.id,
+          o.id,
+          t.id
         ]
-        expect { subject.play!(tiles) }.to raise_error do |error|
+        positions = [
+          [3, 5],
+          [3, 7],
+          [3, 8],
+          [3, 9],
+          [3, 11]
+        ]
+        expect { subject.play!(tile_ids, positions) }.to raise_error do |error|
           expect(error).to be_a(InvalidMove::GapError)
         end
       end
 
       it "should raise a relevant exception if a non-real word is formed" do
         #forms DOG going down but DA going across
-        tiles = [
-          PositionedTile.new(tile("d"), [6, 5]),
-          PositionedTile.new(tile("g"), [6, 7]),
+        tile_ids = [
+          d.id,
+          g.id,
         ]
-        expect { subject.play!(tiles) }.to raise_error do |error|
+        positions = [
+          [6, 5],
+          [6, 7]
+        ]
+        expect { subject.play!(tile_ids, positions) }.to raise_error do |error|
           expect(error).to be_a(InvalidMove::NotAWordError)
         end
       end
 
       it "should raise a relevant exception if non of the existing words are used to make a new word" do
-        #forms DOG going down but DA going across
-        tiles = [
-          PositionedTile.new(tile("d"), [0, 1]),
-          PositionedTile.new(tile("o"), [0, 2]),
-          PositionedTile.new(tile("g"), [0, 3]),
+        tile_ids = [
+          d.id,
+          o.id,
+          g.id,
         ]
-        expect { subject.play!(tiles) }.to raise_error do |error|
+        positions = [
+          [0, 1],
+          [0, 2],
+          [0, 3]
+        ]
+        expect { subject.play!(tile_ids, positions) }.to raise_error do |error|
           expect(error).to be_a(InvalidMove::DidNotBuildOnExistingWordsError)
         end
       end

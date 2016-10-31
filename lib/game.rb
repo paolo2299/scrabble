@@ -1,4 +1,8 @@
-require 'errors'
+require 'securerandom'
+require_relative './errors'
+require_relative './tile_bag'
+require_relative './board'
+require_relative './player'
 
 class Game
   WORDS = %w{
@@ -7,26 +11,37 @@ class Game
     PARROT
   }
 
+  #TODO use a proper storage solution!
+  GAMES_CACHE = {}
+
   attr_reader :player
   attr_reader :tile_bag
   attr_reader :board
+  attr_reader :id
 
   def self.new_game
     board = Board.new
     tile_bag = TileBag.new
     player1 = Player.new_player1
-    Game.new(board, tile_bag, player1)
+    game_id = random_id
+    game = Game.new(game_id, board, tile_bag, player1)
+    GAMES_CACHE[game_id] = game
   end
 
-  def initialize(board, tile_bag, player)
+  def self.from_id(game_id)
+    return GAMES_CACHE.fetch(game_id)
+  end
+
+  def initialize(game_id, board, tile_bag, player)
+    @id = game_id
     @board = board
     @tile_bag = tile_bag
     @player = player
   end
 
-  def play!(positioned_tiles)
-    validate_move!(positioned_tiles)
-    play_tiles!(positioned_tiles)
+  def play!(tile_ids, positions)
+    validate_move!(tile_ids, positions)
+    play_tiles!(tile_ids, positions)
     next_players_turn!
   end
 
@@ -36,12 +51,17 @@ class Game
 
   def to_hash
     {
+      id: id,
       player: player.to_hash,
-      board: board.to_s
+      board: board.to_hash
     }
   end
 
   private
+
+  def self.random_id
+    SecureRandom.uuid
+  end
 
   def next_players_turn!
     #if @current_player == :player1
@@ -51,11 +71,12 @@ class Game
     #end
   end
 
-  def play_tiles!(positioned_tiles)
-    positioned_tiles.each do |positioned_tile|
+  def play_tiles!(tile_ids, positions)
+    tile_ids.zip(positions).each do |tile_id, position|
+      tile = player.take_tile!(tile_id)
       board.place_tile!(
-        positioned_tile.tile,
-        positioned_tile.position
+        tile,
+        position
       )
     end
   end
@@ -64,17 +85,17 @@ class Game
     WORDS.include?(word)
   end
 
-  def validate_move!(positioned_tiles)
+  def validate_move!(tile_ids, positions)
     first_move = board.empty?
     if first_move
-      unless positioned_tiles.map(&:position).include?(board.center)
+      unless positions.include?(board.center)
         raise InvalidMove::FirstMoveNotOnCenterError.new
       end
     end
 
     #all tiles must be in same row or same column
-    cols = positioned_tiles.map(&:position).map{|p| p[0]}.uniq
-    rows = positioned_tiles.map(&:position).map{|p| p[1]}.uniq
+    cols = positions.map{|p| p[0]}.uniq
+    rows = positions.map{|p| p[1]}.uniq
     unless (cols.size == 1) || (rows.size == 1)
       raise InvalidMove::NotInSameRowOrSameColumnError.new
     end
@@ -96,12 +117,15 @@ class Game
       end
     end
 
-    #validate all new words are real words
+    #validate all new words are real words and that the player has the
+    #specified tiles
     board_copy = board.copy
-    positioned_tiles.each do |positioned_tile|
+    player_copy = player.copy
+    tile_ids.zip(positions).each do |tile_id, position|
+      tile = player_copy.take_tile!(tile_id)
       board_copy.place_tile!(
-        positioned_tile.tile,
-        positioned_tile.position
+        tile,
+        position
       )
     end
     new_played_words = board_copy.all_played_words - board.all_played_words
@@ -112,8 +136,8 @@ class Game
     end
 
     unless first_move
-      built_on_existing_words = positioned_tiles.any? do |positioned_tile|
-        board.has_adjacent_tiles?(positioned_tile.position)
+      built_on_existing_words = positions.any? do |position|
+        board.has_adjacent_tiles?(position)
       end
       unless built_on_existing_words
         raise InvalidMove::DidNotBuildOnExistingWordsError.new
@@ -123,11 +147,11 @@ class Game
 end
 
 class PositionedTile
-  attr_reader :tile
+  attr_reader :tile_id
   attr_reader :position
 
-  def initialize(tile, position)
-    @tile = tile
+  def initialize(tile_id, position)
+    @tile_id = tile_id
     @position = position
   end
 end

@@ -11,9 +11,9 @@ class Board
     @tiles = Array.new(HEIGHT) { Array.new(WIDTH) }
   end
 
-  def self.load_from_string!(string)
+  def self.load_from_string!(string, tile_bag=nil)
     board = new
-    tile_bag = TileBag.new
+    tile_bag = tile_bag || TileBag.new
     string.strip.split("\n").each_with_index do |row_string, row_idx|
       row_string.each_char.with_index do |char, col_idx|
         if char != "-"
@@ -88,6 +88,19 @@ class Board
     add_played_words(played_words, rows, :row)
     add_played_words(played_words, cols, :col)
     played_words
+  end
+
+  def to_hash
+    played_tiles = []
+    @tiles.each_with_index do |tile_row, row_idx|
+      tile_row.each_with_index do |tile, col_idx|
+        next unless tile
+        played_tiles << tile.to_hash.merge({
+          position: [col_idx, row_idx]
+        })
+      end
+    end
+    { playedTiles: played_tiles }
   end
 
   def to_s

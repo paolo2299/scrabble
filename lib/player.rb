@@ -1,4 +1,4 @@
-require 'tile_rack'
+require_relative './tile_rack'
 
 class Player
   PLAYER1 = :player1
@@ -17,6 +17,15 @@ class Player
     @tile_rack = tile_rack
   end
 
+  def copy
+    tile_rack_copy = tile_rack.copy
+    Player.new(position, tile_rack_copy)
+  end
+
+  def take_tile!(tile_id)
+    tile_rack.take_tile!(tile_id)
+  end
+
   def fill_tile_rack!(tile_bag)
     num_tiles_needed = tile_rack.capacity - tile_rack.count
     tiles = tile_bag.random_draw!(num_tiles_needed)
@@ -27,8 +36,7 @@ class Player
 
   def to_hash
     {
-      position: position,
-      tile_rack: tile_rack.to_hash
+      tiles: tile_rack.to_a
     }
   end
 end

@@ -41,4 +41,11 @@ class Tile
       "Z" => 10
     }.fetch(letter)
   end
+
+  def to_hash
+    {
+      id: id,
+      letter: letter
+    }
+  end
 end
