@@ -45,7 +45,8 @@ class Tile
   def to_hash
     {
       id: id,
-      letter: letter
+      letter: letter,
+      score: score
     }
   end
 end

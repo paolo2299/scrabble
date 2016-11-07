@@ -8,6 +8,7 @@ class Game
   WORDS = %w{
     CAT
     DOG
+    PIG
     PARROT
   }
 
@@ -37,6 +38,7 @@ class Game
     @board = board
     @tile_bag = tile_bag
     @player = player
+    refill_player_tile_rack!
   end
 
   def play!(tile_ids, positions)

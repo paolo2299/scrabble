@@ -24,35 +24,37 @@
       }
 
       var GameContainer = React.createClass({
-        findByPosition(tiles, position) {
+        componentDidMount: function() {
+          let self = this;
+          $.post("/games", {}, function(response){
+            console.log("POST GAMES RESPONSE");
+            console.log(response);
+            self.setState({
+              gameId: response.id,
+              playedTiles: response.board.playedTiles,
+              playerTiles: response.player.tiles,
+              selectedTileId: null,
+              tentativelyPlayedTiles: []
+            });
+          });
+        },
+
+        findByPosition: function(tiles, position) {
           return Util.findByAttribute(tiles, 'position', position)
         },
 
         getInitialState: function() {
           var initialState = {
-            playedTiles: [
-              {tileId: 100, letter: "B", score: 2, position: [1, 1]},
-              {tileId: 101, letter: "A", score: 1, position: [1, 2]},
-              {tileId: 103, letter: "T", score: 1, position: [1, 3]}
-            ],
-
-            playerTiles: [
-              {tileId: 1, letter: "A", score: 1},
-              {tileId: 2, letter: "C", score: 2},
-              {tileId: 3, letter: "T", score: 1},
-              {tileId: 4, letter: "A", score: 1},
-              {tileId: 5, letter: "A", score: 1}
-            ],
-
+            playedTiles: [],
+            playerTiles: [],
             selectedTileId: null,
-
             tentativelyPlayedTiles: []
           };
           return initialState;
         },
 
         handleTileRackTileClicked: function(tileId) {
-          if (_.find(this.state.tentativelyPlayedTiles, { tileId: tileId })) {
+          if (_.find(this.state.tentativelyPlayedTiles, { id: tileId })) {
             return;
           }
           this.setState({selectedTileId: tileId});
@@ -66,7 +68,7 @@
           if (!this.state.selectedTileId) {
             return;
           }
-          let selectedTile = _.find(this.state.playerTiles, {tileId: this.state.selectedTileId});
+          let selectedTile = _.find(this.state.playerTiles, {id: this.state.selectedTileId});
           selectedTile.position = [colIndex, rowIndex];
           this.setState({tentativelyPlayedTiles: this.state.tentativelyPlayedTiles.concat([selectedTile])});
           this.setState({selectedTileId: null});
@@ -75,6 +77,33 @@
         reset: function() {
           this.setState({tentativelyPlayedTiles: []});
           this.setState({selectedTileId: null});
+        },
+
+        playTiles: function() {
+          console.log("tentativelyPlayedTiles");
+          console.log(this.state.tentativelyPlayedTiles);
+          let self = this;
+          let postData = {
+            playedTiles: this.state.tentativelyPlayedTiles
+          };
+          console.log(JSON.stringify(postData));
+          $.ajax({
+            url: '/games/' + this.state.gameId + '/play',
+            method: 'POST',
+            data: JSON.stringify(postData),
+            contentType:'application/json; charset=utf-8',
+            dataType: 'json',
+            success: function(data) {
+              console.log("GOT DATA");
+              console.log(data);
+              self.setState({
+                playedTiles: data.board.playedTiles,
+                playerTiles: data.player.tiles,
+                selectedTileId: null,
+                tentativelyPlayedTiles: []
+              });
+            }
+          });
         },
 
         render: function() {
@@ -95,6 +124,9 @@
               <ResetButton onClick={this.reset}>
                 reset
               </ResetButton>
+              <PlayTilesButton onClick={this.playTiles}>
+                play
+              </PlayTilesButton>
             </div>
           );
         }
@@ -114,7 +146,7 @@
           var tileData = this.findByPosition(this.props.playedTiles, [colIndex, rowIndex]);
           if (tileData) {
             tile = <Tile
-              key={tileData.tileId}
+              key={tileData.id}
               letter={tileData.letter}
               score={tileData.score}
               onTileClicked={this.doNothing}
@@ -129,8 +161,8 @@
           var tileId = null;
           var tileIndexData = this.findByPosition(this.props.tentativelyPlayedTiles, [colIndex, rowIndex]);
           if (tileIndexData) {
-            tileId = tileIndexData.tileId;
-            tileData = _.find(this.props.playerTiles, { 'tileId': tileId });
+            tileId = tileIndexData.id;
+            tileData = _.find(this.props.playerTiles, { 'id': tileId });
             tile = <Tile
               letter={tileData.letter}
               score={tileData.score}
@@ -197,18 +229,22 @@
         render: function() {
           let self = this;
           var tiles = this.props.playerTiles.map(function(tile) {
+            if (!tile) {
+              //TODO actually render something so that the TileRack can be correct size
+              return null;
+            }
             let selected = false;
-            if (tile.tileId === self.props.selectedTileId) {
+            if (tile.id === self.props.selectedTileId) {
               selected = true;
             }
             let tentative = false;
-            if (_.find(self.props.tentativelyPlayedTiles, { tileId: tile.tileId })) {
+            if (_.find(self.props.tentativelyPlayedTiles, { id: tile.id })) {
               tentative = true;
             }
             return (
               <Tile
-                key={tile.tileId}
-                tileId={tile.tileId}
+                key={tile.id}
+                tileId={tile.id}
                 letter={tile.letter}
                 score={tile.score}
                 selected={selected}
@@ -259,6 +295,20 @@
           return (
             <button className="ResetButton" onClick={this.handleClick}>
               Reset Tiles
+            </button>
+          )
+        }
+      });
+
+      var PlayTilesButton = React.createClass({
+        handleClick: function() {
+          this.props.onClick();
+        },
+
+        render: function() {
+          return (
+            <button className="PlayTilesButton" onClick={this.handleClick}>
+              Play
             </button>
           )
         }

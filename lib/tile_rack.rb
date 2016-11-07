@@ -46,7 +46,7 @@ class TileRack
   def to_a
     rack = Array.new(CAPACITY)
     tiles.each_with_index do |tile, index|
-      rack[index] = tile
+      rack[index] = tile.to_hash
     end
     rack
   end
