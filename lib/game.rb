@@ -6,13 +6,6 @@ require_relative './player'
 require_relative './dictionary'
 
 class Game
-  WORDS = %w{
-    CAT
-    DOG
-    PIG
-    PARROT
-  }
-
   #TODO use a proper storage solution!
   GAMES_CACHE = {}
 
