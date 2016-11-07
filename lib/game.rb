@@ -3,6 +3,7 @@ require_relative './errors'
 require_relative './tile_bag'
 require_relative './board'
 require_relative './player'
+require_relative './dictionary'
 
 class Game
   WORDS = %w{
@@ -85,7 +86,7 @@ class Game
   end
 
   def valid_word?(word)
-    WORDS.include?(word)
+    Dictionary.valid_word?(word)
   end
 
   def validate_move!(tile_ids, positions)
