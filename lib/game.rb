@@ -126,10 +126,10 @@ class Game
       )
     end
     new_played_words = board_copy.all_played_words - board.all_played_words
-    new_played_words.each do |played_word|
-      unless valid_word?(played_word.word)
-        raise InvalidMove::NotAWordError.new played_word.word
-      end
+    invalid_words = new_played_words.reject{|w| valid_word?(w.word)}
+    if invalid_words.any?
+      data = {type: :invalid_word, invalid_words: invalid_words.map(&:word)}
+      raise InvalidMove::InvalidWordError.new("invalid words", data)
     end
 
     unless first_move
