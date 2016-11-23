@@ -27,14 +27,13 @@
         componentDidMount: function() {
           let self = this;
           $.post("/games", {}, function(response){
-            console.log("POST GAMES RESPONSE");
-            console.log(response);
             self.setState({
               gameId: response.id,
               playedTiles: response.board.playedTiles,
               playerTiles: response.player.tiles,
               selectedTileId: null,
-              tentativelyPlayedTiles: []
+              tentativelyPlayedTiles: [],
+              error: null
             });
           });
         },
@@ -74,19 +73,38 @@
           this.setState({selectedTileId: null});
         },
 
+        errorMessageFromError: function(error) {
+          let errorMessage = 'Invalid move.';
+          let errorType = error.error_data.type;
+          //TODO case statement?
+          if (errorType === 'FirstMoveNotOnCenterError') {
+            errorMessage = 'The first word placed on the board needs to cross the center square.';
+          } else if (errorType === 'InvalidWordError') {
+            let invalidWord = error.error_data.invalid_words[0];
+            errorMessage = invalidWord + ' is not a real word.';
+          } else if (errorType === 'NotInSameRowOrSameColumnError') {
+            errorMessage = 'Tiles must all be placed on the same row or the same column.';
+          } else if (errorType === 'GapError') {
+            errorMessage = "You left a gap in a place that's not allowed.";
+          } else if (errorType === 'DidNotBuildOnExistingWordsError') {
+            errorMessage = 'You must build on the words already placed on the board.';
+          }
+          return errorMessage;
+        },
+
         reset: function() {
-          this.setState({tentativelyPlayedTiles: []});
-          this.setState({selectedTileId: null});
+          this.setState({
+            tentativelyPlayedTiles: [],
+            selectedTileId: null,
+            error: null
+          });
         },
 
         playTiles: function() {
-          console.log("tentativelyPlayedTiles");
-          console.log(this.state.tentativelyPlayedTiles);
           let self = this;
           let postData = {
             playedTiles: this.state.tentativelyPlayedTiles
           };
-          console.log(JSON.stringify(postData));
           $.ajax({
             url: '/games/' + this.state.gameId + '/play',
             method: 'POST',
@@ -94,13 +112,20 @@
             contentType:'application/json; charset=utf-8',
             dataType: 'json',
             success: function(data) {
-              console.log("GOT DATA");
-              console.log(data);
               self.setState({
                 playedTiles: data.board.playedTiles,
                 playerTiles: data.player.tiles,
                 selectedTileId: null,
-                tentativelyPlayedTiles: []
+                tentativelyPlayedTiles: [],
+                error: null
+              });
+            },
+            error: function(data) {
+              //TODO handle unexpected error too
+              let errorData = data.responseJSON;
+              let errorMessage = self.errorMessageFromError(errorData);
+              self.setState({
+                error: errorMessage
               });
             }
           });
@@ -115,6 +140,7 @@
                 tentativelyPlayedTiles={this.state.tentativelyPlayedTiles}
                 onBoardCellClicked={this.handleBoardCellClicked}
               />
+              <ErrorContainer error={this.state.error} />
               <TileRack
                 selectedTileId={this.state.selectedTileId}
                 playerTiles={this.state.playerTiles}
@@ -127,6 +153,16 @@
               <PlayTilesButton onClick={this.playTiles}>
                 play
               </PlayTilesButton>
+            </div>
+          );
+        }
+      });
+
+      var ErrorContainer = React.createClass({
+        render: function(){
+          return (
+            <div className="ErrorContainer">
+              { this.props.error }
             </div>
           );
         }

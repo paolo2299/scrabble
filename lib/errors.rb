@@ -1,9 +1,17 @@
 class InvalidMove < StandardError
-  attr_reader :data
-
   def initialize(message="", data={})
     @message = message
     @data = data
+  end
+
+  def data
+    @data.merge({
+      type: name
+    })
+  end
+
+  def name
+    self.class.name.split("::").last
   end
 
   class FirstMoveNotOnCenterError < InvalidMove; end;
