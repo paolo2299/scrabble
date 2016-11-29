@@ -7,13 +7,18 @@ class Board
   HEIGHT = 15
   CENTER = [7, 7].freeze
 
-  def initialize
-    @tiles = Array.new(HEIGHT) { Array.new(WIDTH) }
+  def self.new_board
+    tiles = Array.new(HEIGHT) { Array.new(WIDTH) }
+    new(tiles)
+  end
+
+  def initialize(tiles)
+    @tiles = tiles
   end
 
   def self.load_from_string!(string, tile_bag=nil)
     board = new
-    tile_bag = tile_bag || TileBag.new
+    tile_bag = tile_bag || TileBag.new_tile_bag
     string.strip.split("\n").each_with_index do |row_string, row_idx|
       row_string.each_char.with_index do |char, col_idx|
         if char != "-"
@@ -51,7 +56,7 @@ class Board
   end
 
   def copy
-    board_copy = Board.new
+    board_copy = Board.new_board
     @tiles.each_with_index do |tile_row, row_idx|
       tile_row.each_with_index do |tile, col_idx|
         unless tile.nil?
@@ -100,7 +105,17 @@ class Board
         })
       end
     end
-    { playedTiles: played_tiles }
+    { "playedTiles" => played_tiles }
+  end
+
+  def self.from_hash(h)
+    tiles = Array.new(HEIGHT) { Array.new(WIDTH) }
+    h.fetch("playedTiles").each do |played_tile_hash|
+      col_idx, row_idx = played_tile_hash.fetch("position")
+      tile = Tile.from_hash(played_tile_hash)
+      tiles[row_idx, col_idx] = tile
+    end
+    new(tiles)
   end
 
   def to_s

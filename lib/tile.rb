@@ -44,9 +44,13 @@ class Tile
 
   def to_hash
     {
-      id: id,
-      letter: letter,
-      score: score
+      "id" => id,
+      "letter" => letter,
+      "score" => score
     }
+  end
+
+  def self.from_hash(h)
+    new(h.fetch("id"), h.fetch("letter"))
   end
 end

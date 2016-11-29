@@ -6,8 +6,10 @@ require_relative './player'
 require_relative './dictionary'
 
 class Game
-  #TODO use a proper storage solution!
-  GAMES_CACHE = {}
+  class GameNotFoundError < StandardError; end;
+
+  #TODO use a database instead of file storage
+  SAVE_FOLDER = "./data/saves"
 
   attr_reader :player
   attr_reader :tile_bag
@@ -15,8 +17,8 @@ class Game
   attr_reader :id
 
   def self.new_game
-    board = Board.new
-    tile_bag = TileBag.new
+    board = Board.new_board
+    tile_bag = TileBag.new_tile_bag
     player1 = Player.new_player1
     game_id = random_id
     game = Game.new(game_id, board, tile_bag, player1)
@@ -24,7 +26,23 @@ class Game
   end
 
   def self.from_id(game_id)
-    return GAMES_CACHE.fetch(game_id)
+    return load_from_file(game_id)
+  end
+
+  def save!
+    filename = File.join(SAVE_FOLDER, id)
+    File.open(filename, "w") do |save_file|
+      save_file.write(to_hash.to_json)
+    end
+  end
+
+  def self.load_from_file(game_id)
+    filename = File.join(SAVE_FOLDER, game_id)
+    if File.exist?(filename)
+      game_hash = JSON.parse(File.read(filename))
+      return Game.from_hash(game_hash)
+    end
+    raise GameNotFoundError.new game_id
   end
 
   def initialize(game_id, board, tile_bag, player)
@@ -33,6 +51,7 @@ class Game
     @tile_bag = tile_bag
     @player = player
     refill_player_tile_rack!
+    save!
   end
 
   def play!(tile_ids, positions)
@@ -40,18 +59,29 @@ class Game
     play_tiles!(tile_ids, positions)
     refill_player_tile_rack!
     next_players_turn!
+    save!
   end
 
   def pass!
     next_players_turn!
+    save!
   end
 
   def to_hash
     {
-      id: id,
-      player: player.to_hash,
-      board: board.to_hash
+      "id" => id,
+      "player" => player.to_hash,
+      "board" => board.to_hash,
+      "tileBag" => tile_bag.to_hash
     }
+  end
+
+  def self.from_hash(h)
+    game_id = h.fetch("id")
+    player = Player.from_hash(h.fetch("player"))
+    board = Board.from_hash(h.fetch("board"))
+    tile_bag = TileBag.from_hash(h.fetch("tileBag"))
+    new(game_id, board, tile_bag, player)
   end
 
   private
