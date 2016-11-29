@@ -30,9 +30,22 @@ class TileBag
     ["Z", 1]
   ]
 
-  def initialize
-    @tiles = []
-    generate_all_tiles!
+  def self.new_tile_bag
+    tiles = generate_all_tiles
+    new(tiles)
+  end
+
+  def initialize(tiles)
+    @tiles = tiles
+  end
+
+  def to_hash
+    { "tiles" => tiles.map(&:to_hash) }
+  end
+
+  def self.from_hash(h)
+    tiles = h.fetch("tiles").map { |tile_hash| Tile.from_hash(tile_hash) }
+    new(tiles)
   end
 
   def count
@@ -65,7 +78,8 @@ class TileBag
 
   attr_reader :tiles
 
-  def generate_all_tiles!
+  def self.generate_all_tiles
+    tiles = []
     current_index = 0
     TILE_FREQUENCIES.each do |letter, frequency|
       (current_index...(current_index + frequency)).each do |tile_id|
@@ -73,5 +87,6 @@ class TileBag
       end
       current_index += frequency
     end
+    tiles
   end
 end

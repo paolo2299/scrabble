@@ -8,7 +8,7 @@ class Player
   attr_reader :tile_rack
 
   def self.new_player1
-    tile_rack = TileRack.new
+    tile_rack = TileRack.new_tile_rack
     new(PLAYER1, tile_rack)
   end
 
@@ -36,7 +36,14 @@ class Player
 
   def to_hash
     {
-      tiles: tile_rack.to_a
+      "tileRack" => tile_rack.to_hash,
+      "position" => position
     }
+  end
+
+  def self.from_hash(h)
+    tile_rack = TileRack.from_hash(h.fetch("tileRack"))
+    position = h.fetch("position").to_sym
+    new(position, tile_rack)
   end
 end

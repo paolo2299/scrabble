@@ -6,12 +6,16 @@ class TileRack
 
   attr_reader :tiles
 
-  def initialize
-    @tiles = []
+  def initialize(tiles)
+    @tiles = tiles
+  end
+
+  def self.new_tile_rack
+    new([])
   end
 
   def copy
-    rack_copy = TileRack.new
+    rack_copy = TileRack.new_tile_rack
     tiles.each do |tile|
       rack_copy << tile.dup
     end
@@ -43,11 +47,16 @@ class TileRack
     tiles.count
   end
 
-  def to_a
+  def to_hash
     rack = Array.new(CAPACITY)
     tiles.each_with_index do |tile, index|
       rack[index] = tile.to_hash
     end
-    rack
+    { "tiles" => rack }
+  end
+
+  def self.from_hash(h)
+    tiles = h.fetch("tiles").map { |tile_hash| Tile.from_hash(tile_hash) }
+    new(tiles)
   end
 end
