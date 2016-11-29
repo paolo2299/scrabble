@@ -17,7 +17,7 @@ class Board
   end
 
   def self.load_from_string!(string, tile_bag=nil)
-    board = new
+    board = new_board
     tile_bag = tile_bag || TileBag.new_tile_bag
     string.strip.split("\n").each_with_index do |row_string, row_idx|
       row_string.each_char.with_index do |char, col_idx|

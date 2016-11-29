@@ -8,8 +8,8 @@ describe Board do
     tile_bag.take_tile_with_letter!(letter)
   end
 
-  let(:tile_bag) { TileBag.new  }
-  subject { Board.new }
+  let(:tile_bag) { TileBag.new_tile_bag  }
+  subject { Board.new_board }
 
   describe ".load_from_string!" do
     it "should load the stirng correctly" do

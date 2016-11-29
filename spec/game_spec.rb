@@ -9,9 +9,9 @@ describe Game do
 
   let(:game_id) { "123" }
 
-  let(:board) { Board.new }
+  let(:board) { Board.new_board }
 
-  let(:tile_bag) { TileBag.new }
+  let(:tile_bag) { TileBag.new_tile_bag }
 
   let(:player_tiles) {
     [
@@ -34,7 +34,7 @@ describe Game do
   let(:k) { player_tiles[6] }
 
   let(:tile_rack) do
-    rack = TileRack.new
+    rack = TileRack.new_tile_rack
     player_tiles.each do |tile|
       rack << tile
     end
@@ -178,7 +178,7 @@ describe Game do
           [7, 7]
         ]
         expect { subject.play!(tile_ids, positions) }.to raise_error do |error|
-          expect(error).to be_a(InvalidMove::NotAWordError)
+          expect(error).to be_a(InvalidMove::InvalidWordError)
         end
         expect(subject.board).to be_empty
       end
@@ -268,6 +268,10 @@ describe Game do
 
       it "should raise a relevant exception if a non-real word is formed" do
         #forms DOG going down but DA going across
+        allow(Dictionary).to receive(:valid_word?).with("DA").and_return(false)
+        allow(Dictionary).to receive(:valid_word?).with("CAT").and_return(true)
+        allow(Dictionary).to receive(:valid_word?).with("PARROT").and_return(true)
+        allow(Dictionary).to receive(:valid_word?).with("DOG").and_return(true)
         tile_ids = [
           d.id,
           g.id,
@@ -277,7 +281,7 @@ describe Game do
           [6, 7]
         ]
         expect { subject.play!(tile_ids, positions) }.to raise_error do |error|
-          expect(error).to be_a(InvalidMove::NotAWordError)
+          expect(error).to be_a(InvalidMove::InvalidWordError)
         end
       end
 

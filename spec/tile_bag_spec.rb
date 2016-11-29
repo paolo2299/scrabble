@@ -2,7 +2,7 @@ require 'spec_helper'
 require 'tile_bag'
 
 describe TileBag do
-  subject { TileBag.new }
+  subject { TileBag.new_tile_bag }
 
   it "should have the correct number of tiles" do
     #TODO this should go up to 100 once blank tiles are introduced
@@ -24,8 +24,8 @@ describe TileBag do
     end
 
     it "should randomise the tiles it returns" do
-      tiles1 = TileBag.new.random_draw!(5)
-      tiles2 = TileBag.new.random_draw!(5)
+      tiles1 = TileBag.new_tile_bag.random_draw!(5)
+      tiles2 = TileBag.new_tile_bag.random_draw!(5)
       expect(tiles1.map(&:id)).to_not eq(tiles2.map(&:id))
     end
   end
