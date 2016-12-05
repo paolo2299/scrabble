@@ -22,7 +22,6 @@ class Game
     player1 = Player.new_player1
     game_id = random_id
     game = Game.new(game_id, board, tile_bag, player1)
-    GAMES_CACHE[game_id] = game
   end
 
   def self.from_id(game_id)

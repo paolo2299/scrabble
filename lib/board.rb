@@ -13,6 +13,8 @@ class Board
   end
 
   def initialize(tiles)
+    puts "INIT BOARD"
+    p tiles
     @tiles = tiles
   end
 

@@ -30,7 +30,7 @@
             self.setState({
               gameId: response.id,
               playedTiles: response.board.playedTiles,
-              playerTiles: response.player.tileRack,
+              playerTiles: response.player.tileRack.tiles,
               selectedTileId: null,
               tentativelyPlayedTiles: [],
               error: null
@@ -114,7 +114,7 @@
             success: function(data) {
               self.setState({
                 playedTiles: data.board.playedTiles,
-                playerTiles: data.player.tiles,
+                playerTiles: data.player.tileRack.tiles,
                 selectedTileId: null,
                 tentativelyPlayedTiles: [],
                 error: null
