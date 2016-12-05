@@ -13,6 +13,8 @@ class Board
   end
 
   def initialize(tiles)
+    puts "INIT BOARD"
+    p tiles
     @tiles = tiles
   end
 
@@ -113,7 +115,7 @@ class Board
     h.fetch("playedTiles").each do |played_tile_hash|
       col_idx, row_idx = played_tile_hash.fetch("position")
       tile = Tile.from_hash(played_tile_hash)
-      tiles[row_idx, col_idx] = tile
+      tiles[row_idx][col_idx] = tile
     end
     new(tiles)
   end
