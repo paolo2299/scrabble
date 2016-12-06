@@ -21507,11 +21507,11 @@
 
 	var _TileRack2 = _interopRequireDefault(_TileRack);
 
-	var _ErrorContainer = __webpack_require__(186);
+	var _ErrorContainer = __webpack_require__(187);
 
 	var _ErrorContainer2 = _interopRequireDefault(_ErrorContainer);
 
-	var _Board = __webpack_require__(187);
+	var _Board = __webpack_require__(188);
 
 	var _Board2 = _interopRequireDefault(_Board);
 
@@ -49088,6 +49088,10 @@
 
 	var _ = _interopRequireWildcard(_lodash);
 
+	var _Tile = __webpack_require__(186);
+
+	var _Tile2 = _interopRequireDefault(_Tile);
+
 	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -49114,7 +49118,7 @@
 	      if (_.find(self.props.tentativelyPlayedTiles, { id: tile.id })) {
 	        tentative = true;
 	      }
-	      return _react2.default.createElement(Tile, {
+	      return _react2.default.createElement(_Tile2.default, {
 	        key: tile.id,
 	        tileId: tile.id,
 	        letter: tile.letter,
@@ -49150,6 +49154,56 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+	var Tile = _react2.default.createClass({
+	  displayName: "Tile",
+
+	  handleClick: function handleClick(e) {
+	    this.props.onTileClicked(this.props.tileId);
+	  },
+
+	  render: function render() {
+	    var className = "Tile";
+	    if (this.props.tentative) {
+	      className += " tentative";
+	    }
+	    if (this.props.selected) {
+	      className += " selected";
+	    }
+	    return _react2.default.createElement(
+	      "div",
+	      { className: className, onClick: this.handleClick },
+	      _react2.default.createElement(
+	        "span",
+	        { className: "Letter" },
+	        this.props.letter
+	      ),
+	      _react2.default.createElement(
+	        "span",
+	        { className: "Score" },
+	        this.props.score
+	      )
+	    );
+	  }
+	});
+
+	exports.default = Tile;
+
+/***/ },
+/* 187 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 	var ErrorContainer = _react2.default.createClass({
 	  displayName: "ErrorContainer",
 
@@ -49165,7 +49219,7 @@
 	exports.default = ErrorContainer;
 
 /***/ },
-/* 187 */
+/* 188 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -49186,9 +49240,13 @@
 
 	var _ = _interopRequireWildcard(_lodash);
 
-	var _BoardCell = __webpack_require__(188);
+	var _BoardCell = __webpack_require__(189);
 
 	var _BoardCell2 = _interopRequireDefault(_BoardCell);
+
+	var _Tile = __webpack_require__(186);
+
+	var _Tile2 = _interopRequireDefault(_Tile);
 
 	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
@@ -49209,7 +49267,7 @@
 	    var tile = null;
 	    var tileData = this.findByPosition(this.props.playedTiles, [colIndex, rowIndex]);
 	    if (tileData) {
-	      tile = _react2.default.createElement(Tile, {
+	      tile = _react2.default.createElement(_Tile2.default, {
 	        key: tileData.id,
 	        letter: tileData.letter,
 	        score: tileData.score,
@@ -49227,7 +49285,7 @@
 	    if (tileIndexData) {
 	      tileId = tileIndexData.id;
 	      tileData = _.find(this.props.playerTiles, { 'id': tileId });
-	      tile = _react2.default.createElement(Tile, {
+	      tile = _react2.default.createElement(_Tile2.default, {
 	        letter: tileData.letter,
 	        score: tileData.score,
 	        tentative: true,
@@ -49275,7 +49333,7 @@
 	exports.default = Board;
 
 /***/ },
-/* 188 */
+/* 189 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";

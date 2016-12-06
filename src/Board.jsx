@@ -2,6 +2,7 @@ import React from 'react';
 import Util from './Util.js';
 import * as _ from 'lodash';
 import BoardCell from './BoardCell.jsx';
+import Tile from './Tile.jsx';
 
 const Board = React.createClass({
   findByPosition(tiles, position) {

@@ -1,5 +1,6 @@
 import React from 'react';
 import * as _ from 'lodash';
+import Tile from './Tile.jsx';
 
 const TileRack = React.createClass({
   onTileClicked: function(tileId) {
