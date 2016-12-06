@@ -49028,7 +49028,7 @@
 	  render: function render() {
 	    return _react2.default.createElement(
 	      "button",
-	      { className: "PlayTilesButton", onClick: this.handleClick },
+	      { className: "PlayTilesButton action-button", onClick: this.handleClick },
 	      "Play"
 	    );
 	  }
@@ -49062,7 +49062,7 @@
 	  render: function render() {
 	    return _react2.default.createElement(
 	      "button",
-	      { className: "ResetButton", onClick: this.handleClick },
+	      { className: "ResetButton action-button", onClick: this.handleClick },
 	      "Reset Tiles"
 	    );
 	  }

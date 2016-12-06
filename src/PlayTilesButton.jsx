@@ -7,7 +7,7 @@ const PlayTilesButton = React.createClass({
 
   render: function() {
     return (
-      <button className="PlayTilesButton" onClick={this.handleClick}>
+      <button className="PlayTilesButton action-button" onClick={this.handleClick}>
         Play
       </button>
     )

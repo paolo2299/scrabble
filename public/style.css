@@ -70,9 +70,10 @@
   display: block;
 }
 
-.ResetButton {
+.action-button {
   font-size: 20px;
   margin-left: 20px;
+  width: 120px;
 }
 
 .BoardCell {

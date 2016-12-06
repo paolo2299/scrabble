@@ -7,7 +7,7 @@ const ResetButton = React.createClass({
 
   render: function() {
     return (
-      <button className="ResetButton" onClick={this.handleClick}>
+      <button className="ResetButton action-button" onClick={this.handleClick}>
         Reset Tiles
       </button>
     )
