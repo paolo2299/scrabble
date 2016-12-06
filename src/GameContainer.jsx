@@ -132,12 +132,12 @@ const GameContainer = React.createClass({
           tentativelyPlayedTiles={this.state.tentativelyPlayedTiles}
           onTileClicked={this.handleTileRackTileClicked}
         />
-        <ResetButton onClick={this.reset}>
-          reset
-        </ResetButton>
         <PlayTilesButton onClick={this.playTiles}>
           play
         </PlayTilesButton>
+        <ResetButton onClick={this.reset}>
+          reset
+        </ResetButton>
       </div>
     );
   }

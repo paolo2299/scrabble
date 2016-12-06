@@ -21647,14 +21647,14 @@
 	        onTileClicked: this.handleTileRackTileClicked
 	      }),
 	      _react2.default.createElement(
-	        _ResetButton2.default,
-	        { onClick: this.reset },
-	        'reset'
-	      ),
-	      _react2.default.createElement(
 	        _PlayTilesButton2.default,
 	        { onClick: this.playTiles },
 	        'play'
+	      ),
+	      _react2.default.createElement(
+	        _ResetButton2.default,
+	        { onClick: this.reset },
+	        'reset'
 	      )
 	    );
 	  }
