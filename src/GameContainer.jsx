@@ -6,6 +6,7 @@ import PlayTilesButton from './PlayTilesButton.jsx';
 import ResetButton from './ResetButton.jsx';
 import TileRack from './TileRack.jsx';
 import ErrorContainer from './ErrorContainer.jsx';
+import ScoreDisplay from './ScoreDisplay.jsx';
 import Board from './Board.jsx';
 
 const GameContainer = React.createClass({
@@ -16,6 +17,7 @@ const GameContainer = React.createClass({
         gameId: response.id,
         playedTiles: response.board.playedTiles,
         playerTiles: response.player.tileRack.tiles,
+        playerScore: response.player.score,
         selectedTileId: null,
         tentativelyPlayedTiles: [],
         error: null
@@ -31,6 +33,7 @@ const GameContainer = React.createClass({
     var initialState = {
       playedTiles: [],
       playerTiles: [],
+      playerScore: 0,
       selectedTileId: null,
       tentativelyPlayedTiles: []
     };
@@ -100,6 +103,7 @@ const GameContainer = React.createClass({
         self.setState({
           playedTiles: data.board.playedTiles,
           playerTiles: data.player.tileRack.tiles,
+          playerScore: data.player.score,
           selectedTileId: null,
           tentativelyPlayedTiles: [],
           error: null
@@ -126,6 +130,7 @@ const GameContainer = React.createClass({
           onBoardCellClicked={this.handleBoardCellClicked}
         />
         <ErrorContainer error={this.state.error} />
+        <ScoreDisplay score={this.state.playerScore} />
         <TileRack
           selectedTileId={this.state.selectedTileId}
           playerTiles={this.state.playerTiles}

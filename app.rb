@@ -24,11 +24,6 @@ post "/games/:game_id/play" do
   tile_ids = request_payload.fetch("playedTiles").map {|data| data.fetch("id")}
   positions = request_payload.fetch("playedTiles").map {|data| data.fetch("position")}
   begin
-    puts "playing!!!"
-    puts "tile_ids"
-    p tile_ids
-    puts "positions"
-    p positions
     game.play!(tile_ids, positions)
   rescue InvalidMove => e
     status 400

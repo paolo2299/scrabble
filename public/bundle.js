@@ -21511,7 +21511,11 @@
 
 	var _ErrorContainer2 = _interopRequireDefault(_ErrorContainer);
 
-	var _Board = __webpack_require__(188);
+	var _ScoreDisplay = __webpack_require__(188);
+
+	var _ScoreDisplay2 = _interopRequireDefault(_ScoreDisplay);
+
+	var _Board = __webpack_require__(189);
 
 	var _Board2 = _interopRequireDefault(_Board);
 
@@ -21529,6 +21533,7 @@
 	        gameId: response.id,
 	        playedTiles: response.board.playedTiles,
 	        playerTiles: response.player.tileRack.tiles,
+	        playerScore: response.player.score,
 	        selectedTileId: null,
 	        tentativelyPlayedTiles: [],
 	        error: null
@@ -21544,6 +21549,7 @@
 	    var initialState = {
 	      playedTiles: [],
 	      playerTiles: [],
+	      playerScore: 0,
 	      selectedTileId: null,
 	      tentativelyPlayedTiles: []
 	    };
@@ -21613,6 +21619,7 @@
 	        self.setState({
 	          playedTiles: data.board.playedTiles,
 	          playerTiles: data.player.tileRack.tiles,
+	          playerScore: data.player.score,
 	          selectedTileId: null,
 	          tentativelyPlayedTiles: [],
 	          error: null
@@ -21640,6 +21647,7 @@
 	        onBoardCellClicked: this.handleBoardCellClicked
 	      }),
 	      _react2.default.createElement(_ErrorContainer2.default, { error: this.state.error }),
+	      _react2.default.createElement(_ScoreDisplay2.default, { score: this.state.playerScore }),
 	      _react2.default.createElement(_TileRack2.default, {
 	        selectedTileId: this.state.selectedTileId,
 	        playerTiles: this.state.playerTiles,
@@ -49222,6 +49230,42 @@
 /* 188 */
 /***/ function(module, exports, __webpack_require__) {
 
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	var ScoreDisplay = _react2.default.createClass({
+	  displayName: "ScoreDisplay",
+
+	  render: function render() {
+	    return _react2.default.createElement(
+	      "div",
+	      { className: "Score" },
+	      _react2.default.createElement(
+	        "h3",
+	        null,
+	        " Score: ",
+	        this.props.score,
+	        " "
+	      )
+	    );
+	  }
+	});
+
+	exports.default = ScoreDisplay;
+
+/***/ },
+/* 189 */
+/***/ function(module, exports, __webpack_require__) {
+
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -49240,7 +49284,7 @@
 
 	var _ = _interopRequireWildcard(_lodash);
 
-	var _BoardCell = __webpack_require__(189);
+	var _BoardCell = __webpack_require__(190);
 
 	var _BoardCell2 = _interopRequireDefault(_BoardCell);
 
@@ -49333,7 +49377,7 @@
 	exports.default = Board;
 
 /***/ },
-/* 189 */
+/* 190 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";

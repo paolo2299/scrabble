@@ -6,6 +6,74 @@ class Board
   WIDTH = 15
   HEIGHT = 15
   CENTER = [7, 7].freeze
+  TRIPLE_WORD_SCORES = [
+    [0, 0],
+    [0, 7],
+    [0, 14],
+    [7, 0],
+    [7, 14],
+    [14, 0],
+    [14, 7],
+    [14, 14]
+  ].freeze
+  DOUBLE_WORD_SCORES = [
+    [1, 1],
+    [2, 2],
+    [3, 3],
+    [4, 4],
+    [13, 1],
+    [12, 2],
+    [11, 3],
+    [10, 4],
+    [1, 13],
+    [2, 12],
+    [3, 11],
+    [4, 10],
+    [14, 14],
+    [13, 13],
+    [12, 12],
+    [11, 11]
+  ].freeze
+  TRIPLE_LETTER_SCORES = [
+    [5, 1],
+    [9, 1],
+    [1, 5],
+    [1, 9],
+    [5, 13],
+    [9, 13],
+    [13, 5],
+    [13, 9],
+    [5, 5],
+    [9, 5],
+    [5, 9],
+    [9, 9]
+  ].freeze
+  DOUBLE_LETTER_SCORES = [
+    [0, 3],
+    [0, 11],
+    [14, 3],
+    [14, 11],
+    [3, 0],
+    [11, 0],
+    [3, 14],
+    [11, 14],
+    [6, 2],
+    [7, 3],
+    [8, 2],
+    [2, 6],
+    [3, 7],
+    [2, 8],
+    [6, 12],
+    [7, 11],
+    [8, 12],
+    [12, 6],
+    [11, 7],
+    [12, 8],
+    [6, 6],
+    [6, 8],
+    [8, 6],
+    [8, 8]
+  ].freeze
 
   def self.new_board
     tiles = Array.new(HEIGHT) { Array.new(WIDTH) }
@@ -13,9 +81,8 @@ class Board
   end
 
   def initialize(tiles)
-    puts "INIT BOARD"
-    p tiles
     @tiles = tiles
+    @placed_this_turn = []
   end
 
   def self.load_from_string!(string, tile_bag=nil)
@@ -28,11 +95,16 @@ class Board
         end
       end
     end
+    board.commit!
     board
   end
 
   def center
     CENTER
+  end
+
+  def commit!
+    @placed_this_turn = []
   end
 
   def has_adjacent_tiles?(position)
@@ -66,6 +138,7 @@ class Board
         end
       end
     end
+    board_copy.commit!
     board_copy
   end
 
@@ -80,6 +153,7 @@ class Board
       raise InvalidTilePlacementError, "there is already a tile at position [#{position[0]}, #{position[1]}]"
     end
     @tiles[position[1]][position[0]] = tile
+    @placed_this_turn << position
   end
 
   def all_played_words
@@ -107,7 +181,13 @@ class Board
         })
       end
     end
-    { "playedTiles" => played_tiles }
+    {
+      "playedTiles" => played_tiles,
+      "tripleWordTiles" => self.class::TRIPLE_WORD_SCORES,
+      "doubleWordTiles" => self.class::DOUBLE_WORD_SCORES,
+      "tripleLetterTiles" => self.class::TRIPLE_LETTER_SCORES,
+      "doubleLetterTiles" => self.class::DOUBLE_LETTER_SCORES
+    }
   end
 
   def self.from_hash(h)
@@ -139,52 +219,59 @@ class Board
 
   def add_played_words(played_words, rows_or_cols, orientation)
     rows_or_cols.each_with_index do |row_or_col, index1|
-      word = ""
-      start_position = nil
+      word_tiles = []
+      word_positions = []
       row_or_col.each_with_index do |tile, index2|
         if tile.nil?
-          if word.length > 1
-            add_played_word(played_words, word, start_position, index1, orientation)
+          #TODO this breaks if the first word played in the game is one letter
+          if word_tiles.length > 1
+            played_words << PlayedWord.new(word_tiles, word_positions, self)
           end
-          word = ""
-          start_position = nil
+          word_tiles = []
+          word_positions = []
         else
-          word += tile.letter
-          if !start_position
-            start_position = index2
+          word_tiles << tile
+          #TODO check this is the right way round
+          word_positions << case orientation
+            when :across then [index2, index1]
+            else [index1, index2]
           end
           if index2 == row_or_col.size - 1
-            add_played_word(played_words, word, start_position, index1, orientation)
+            played_words << PlayedWord.new(word_tiles, word_positions, self)
           end
         end
       end
     end
   end
-
-  def add_played_word(played_words, word, start_position, index, orientation)
-    case orientation
-    when :row
-      played_words << PlayedWord.new(word.upcase, [start_position, index], :across)
-    else
-      played_words << PlayedWord.new(word.upcase, [index, start_position], :down)
-    end
-  end
 end
 
 class PlayedWord
-  attr_reader :word
   attr_reader :position
   attr_reader :direction
 
-  def initialize(word, position, direction)
-    @word = word
-    @position = position
+  def initialize(tiles, positions, board)
+    @board = board
+    @tiles = tiles
+    @positions = positions
     @direction = direction
   end
 
+  def to_s
+    @tiles.map(&:letter).join("").upcase
+  end
+
+  def score
+    #word_score = 0
+    #multiplier = 1
+    #@tiles.each_with_index do |tile, index|
+
+    #end
+    #word_score * multiplier
+    @tiles.map(&:score).inject(&:+)
+  end
+
   def ==(another_played_word)
-    self.word == another_played_word.word &&
-      self.position == another_played_word.position &&
-      self.direction == another_played_word.direction
+    self.word.to_s == another_played_word.to_s &&
+      self.positions == another_played_word.positions
   end
 end

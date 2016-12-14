@@ -54,9 +54,12 @@ class Game
   end
 
   def play!(tile_ids, positions)
-    validate_move!(tile_ids, positions)
+    #TODO doesn't really make sense returning score from this method
+    score = validate_move!(tile_ids, positions)
     play_tiles!(tile_ids, positions)
+    player.add_score!(score)
     refill_player_tile_rack!
+    board.commit!
     next_players_turn!
     save!
   end
@@ -155,9 +158,9 @@ class Game
       )
     end
     new_played_words = board_copy.all_played_words - board.all_played_words
-    invalid_words = new_played_words.reject{|w| valid_word?(w.word)}
+    invalid_words = new_played_words.reject{|w| valid_word?(w.to_s)}
     if invalid_words.any?
-      data = {type: :invalid_word, invalid_words: invalid_words.map(&:word)}
+      data = {type: :invalid_word, invalid_words: invalid_words.map(&:to_s)}
       raise InvalidMove::InvalidWordError.new("invalid words", data)
     end
 
@@ -169,6 +172,9 @@ class Game
         raise InvalidMove::DidNotBuildOnExistingWordsError.new
       end
     end
+
+    score = new_played_words.map(&:score).inject(&:+)
+    return score
   end
 
   def refill_player_tile_rack!
