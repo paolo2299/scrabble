@@ -1,17 +1,17 @@
-import React from 'react';
+import React from 'react'
 
 const Tile = React.createClass({
   handleClick: function(e) {
-    this.props.onTileClicked(this.props.tileId);
+    this.props.onTileClicked(this.props.tileId)
   },
 
   render: function() {
-    let className = "Tile";
+    let className = 'Tile'
     if (this.props.tentative) {
-      className += " tentative";
+      className += ' tentative'
     }
     if (this.props.selected) {
-      className += " selected";
+      className += ' selected'
     }
     return (
       <div className={className} onClick={this.handleClick}>
@@ -22,7 +22,7 @@ const Tile = React.createClass({
         </span>
       </div>
     )
-  }
-});
+  },
+})
 
-export default Tile;
+export default Tile

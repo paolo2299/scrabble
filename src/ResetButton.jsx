@@ -1,8 +1,8 @@
-import React from 'react';
+import React from 'react'
 
 const ResetButton = React.createClass({
   handleClick: function() {
-    this.props.onClick();
+    this.props.onClick()
   },
 
   render: function() {
@@ -11,7 +11,7 @@ const ResetButton = React.createClass({
         Reset Tiles
       </button>
     )
-  }
-});
+  },
+})
 
-export default ResetButton;
+export default ResetButton

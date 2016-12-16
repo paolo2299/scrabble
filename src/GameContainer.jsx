@@ -1,28 +1,29 @@
-import * as _ from 'lodash';
-import * as $ from 'jquery';
-import React from 'react';
-import Util from './Util.js';
-import PlayTilesButton from './PlayTilesButton.jsx';
-import ResetButton from './ResetButton.jsx';
-import TileRack from './TileRack.jsx';
-import ErrorContainer from './ErrorContainer.jsx';
-import ScoreDisplay from './ScoreDisplay.jsx';
-import Board from './Board.jsx';
+import * as _ from 'lodash'
+import * as $ from 'jquery'
+import React from 'react'
+import Util from './Util.js'
+import PlayTilesButton from './PlayTilesButton.jsx'
+import ResetButton from './ResetButton.jsx'
+import TileRack from './TileRack.jsx'
+import ErrorContainer from './ErrorContainer.jsx'
+import ScoreDisplay from './ScoreDisplay.jsx'
+import Board from './Board.jsx'
 
 const GameContainer = React.createClass({
   componentDidMount: function() {
-    let self = this;
-    $.post("/games", {}, function(response){
+    let self = this
+    $.post('/games', {}, function(response) {
       self.setState({
         gameId: response.id,
         playedTiles: response.board.playedTiles,
+        multiplierTiles: response.board.multiplierTiles,
         playerTiles: response.player.tileRack.tiles,
         playerScore: response.player.score,
         selectedTileId: null,
         tentativelyPlayedTiles: [],
-        error: null
-      });
-    });
+        error: null,
+      })
+    })
   },
 
   findByPosition: function(tiles, position) {
@@ -30,74 +31,75 @@ const GameContainer = React.createClass({
   },
 
   getInitialState: function() {
-    var initialState = {
+    let initialState = {
       playedTiles: [],
       playerTiles: [],
       playerScore: 0,
       selectedTileId: null,
-      tentativelyPlayedTiles: []
-    };
-    return initialState;
+      tentativelyPlayedTiles: [],
+      multiplierTiles: {},
+    }
+    return initialState
   },
 
   handleTileRackTileClicked: function(tileId) {
-    if (_.find(this.state.tentativelyPlayedTiles, { id: tileId })) {
-      return;
+    if (_.find(this.state.tentativelyPlayedTiles, {id: tileId})) {
+      return
     }
-    this.setState({selectedTileId: tileId});
+    this.setState({selectedTileId: tileId})
   },
 
   handleBoardCellClicked: function(colIndex, rowIndex) {
-    let allTiles = this.state.tentativelyPlayedTiles + this.state.playedTiles;
+    let allTiles = this.state.tentativelyPlayedTiles + this.state.playedTiles
     if (this.findByPosition(allTiles, [colIndex, rowIndex])) {
-      return;
+      return
     }
     if (!this.state.selectedTileId) {
-      return;
+      return
     }
-    let selectedTile = _.find(this.state.playerTiles, {id: this.state.selectedTileId});
-    selectedTile.position = [colIndex, rowIndex];
-    this.setState({tentativelyPlayedTiles: this.state.tentativelyPlayedTiles.concat([selectedTile])});
-    this.setState({selectedTileId: null});
+    let selectedTile = _.find(this.state.playerTiles, {id: this.state.selectedTileId})
+    selectedTile.position = [colIndex, rowIndex]
+    this.setState({tentativelyPlayedTiles: this.state.tentativelyPlayedTiles.concat([selectedTile])})
+    this.setState({selectedTileId: null})
   },
 
   errorMessageFromError: function(error) {
-    let errorMessage = 'Invalid move.';
-    let errorType = error.error_data.type;
-    //TODO case statement?
+    let errorMessage = 'Invalid move.'
+    let errorType = error.error_data.type
+    // TODO case statement?
     if (errorType === 'FirstMoveNotOnCenterError') {
-      errorMessage = 'The first word placed on the board needs to cross the center square.';
+      errorMessage = 'The first word placed on the board needs to cross the center square.'
     } else if (errorType === 'InvalidWordError') {
-      let invalidWord = error.error_data.invalid_words[0];
-      errorMessage = invalidWord + ' is not a real word.';
+      let invalidWord = error.error_data.invalid_words[0]
+      errorMessage = invalidWord + ' is not a real word.'
     } else if (errorType === 'NotInSameRowOrSameColumnError') {
-      errorMessage = 'Tiles must all be placed on the same row or the same column.';
+      errorMessage = 'Tiles must all be placed on the same row or the same column.'
     } else if (errorType === 'GapError') {
-      errorMessage = "You left a gap in a place that's not allowed.";
+      errorMessage = 'You left a gap in a place that\'s not allowed.'
     } else if (errorType === 'DidNotBuildOnExistingWordsError') {
-      errorMessage = 'You must build on the words already placed on the board.';
+      errorMessage = 'You must build on the words already placed on the board.'
     }
-    return errorMessage;
+    return errorMessage
   },
 
   reset: function() {
     this.setState({
       tentativelyPlayedTiles: [],
       selectedTileId: null,
-      error: null
-    });
+      error: null,
+    })
   },
 
   playTiles: function() {
-    let self = this;
+    let self = this
     let postData = {
-      playedTiles: this.state.tentativelyPlayedTiles
-    };
+      playedTiles: this.state.tentativelyPlayedTiles,
+    }
     $.ajax({
       url: '/games/' + this.state.gameId + '/play',
       method: 'POST',
       data: JSON.stringify(postData),
-      contentType:'application/json; charset=utf-8',
+      contentType: 'application/json; charset=utf-8',
       dataType: 'json',
       success: function(data) {
         self.setState({
@@ -106,18 +108,18 @@ const GameContainer = React.createClass({
           playerScore: data.player.score,
           selectedTileId: null,
           tentativelyPlayedTiles: [],
-          error: null
-        });
+          error: null,
+        })
       },
       error: function(data) {
-        //TODO handle unexpected error too
-        let errorData = data.responseJSON;
-        let errorMessage = self.errorMessageFromError(errorData);
+        // TODO handle unexpected error too
+        let errorData = data.responseJSON
+        let errorMessage = self.errorMessageFromError(errorData)
         self.setState({
-          error: errorMessage
-        });
-      }
-    });
+          error: errorMessage,
+        })
+      },
+    })
   },
 
   render: function() {
@@ -128,6 +130,7 @@ const GameContainer = React.createClass({
           playerTiles={this.state.playerTiles}
           tentativelyPlayedTiles={this.state.tentativelyPlayedTiles}
           onBoardCellClicked={this.handleBoardCellClicked}
+          multiplierTiles={this.state.multiplierTiles}
         />
         <ErrorContainer error={this.state.error} />
         <ScoreDisplay score={this.state.playerScore} />
@@ -144,8 +147,8 @@ const GameContainer = React.createClass({
           reset
         </ResetButton>
       </div>
-    );
-  }
-});
+    )
+  },
+})
 
-export default GameContainer;
+export default GameContainer

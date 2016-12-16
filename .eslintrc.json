@@ -1,0 +1,39 @@
+{
+    "extends": "google",
+    "installedESLint": true,
+    "plugins": [
+      "react",
+      "jasmine",
+      "lodash"
+    ],
+    "parser": "babel-eslint",
+    "rules": {
+      "camelcase": 0,
+      "curly": 0,
+      "no-underscore-dangle": 0,
+      "no-unused-expressions": 0,
+      "no-use-before-define": 0,
+      "keyword-spacing": ["error", { "after": true }],
+      "max-depth": [1, 5],
+      "complexity": [1, 20],
+      "max-statements": [1, 30],
+      "quotes": [2, "single", { "allowTemplateLiterals": true }],
+      "strict": [2, "never"],
+      "react/jsx-uses-react": 2,
+      "react/jsx-uses-vars": 2,
+      "react/react-in-jsx-scope": 2,
+      "jasmine/no-focused-tests": "error",
+      "jasmine/no-disabled-tests": "error",
+      "semi": ["error", "never"],
+      "no-unexpected-multiline": "error",
+      "no-debugger": 2,
+      "comma-dangle": ["error", "always-multiline"],
+      "space-before-function-paren": ["error", "never"],
+      "no-var": "error",
+      "no-unused-vars": ["error", { "args": "none" }],
+      "no-undef": "error",
+      "arrow-parens": ["error", "as-needed"],
+      "no-multiple-empty-lines": ["error", { "max": 1, "maxEOF": 0 }],
+      "lodash/chaining": ["error", "never"]
+  }
+}

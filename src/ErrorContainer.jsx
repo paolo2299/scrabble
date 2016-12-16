@@ -1,13 +1,13 @@
-import React from 'react';
+import React from 'react'
 
 const ErrorContainer = React.createClass({
-  render: function(){
+  render: function() {
     return (
       <div className="ErrorContainer">
         { this.props.error }
       </div>
-    );
-  }
-});
+    )
+  },
+})
 
-export default ErrorContainer;
+export default ErrorContainer

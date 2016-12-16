@@ -21528,10 +21528,11 @@
 
 	  componentDidMount: function componentDidMount() {
 	    var self = this;
-	    $.post("/games", {}, function (response) {
+	    $.post('/games', {}, function (response) {
 	      self.setState({
 	        gameId: response.id,
 	        playedTiles: response.board.playedTiles,
+	        multiplierTiles: response.board.multiplierTiles,
 	        playerTiles: response.player.tileRack.tiles,
 	        playerScore: response.player.score,
 	        selectedTileId: null,
@@ -21551,7 +21552,8 @@
 	      playerTiles: [],
 	      playerScore: 0,
 	      selectedTileId: null,
-	      tentativelyPlayedTiles: []
+	      tentativelyPlayedTiles: [],
+	      multiplierTiles: {}
 	    };
 	    return initialState;
 	  },
@@ -21580,7 +21582,7 @@
 	  errorMessageFromError: function errorMessageFromError(error) {
 	    var errorMessage = 'Invalid move.';
 	    var errorType = error.error_data.type;
-	    //TODO case statement?
+	    // TODO case statement?
 	    if (errorType === 'FirstMoveNotOnCenterError') {
 	      errorMessage = 'The first word placed on the board needs to cross the center square.';
 	    } else if (errorType === 'InvalidWordError') {
@@ -21589,7 +21591,7 @@
 	    } else if (errorType === 'NotInSameRowOrSameColumnError') {
 	      errorMessage = 'Tiles must all be placed on the same row or the same column.';
 	    } else if (errorType === 'GapError') {
-	      errorMessage = "You left a gap in a place that's not allowed.";
+	      errorMessage = 'You left a gap in a place that\'s not allowed.';
 	    } else if (errorType === 'DidNotBuildOnExistingWordsError') {
 	      errorMessage = 'You must build on the words already placed on the board.';
 	    }
@@ -21626,7 +21628,7 @@
 	        });
 	      },
 	      error: function error(data) {
-	        //TODO handle unexpected error too
+	        // TODO handle unexpected error too
 	        var errorData = data.responseJSON;
 	        var errorMessage = self.errorMessageFromError(errorData);
 	        self.setState({
@@ -21644,7 +21646,8 @@
 	        playedTiles: this.state.playedTiles,
 	        playerTiles: this.state.playerTiles,
 	        tentativelyPlayedTiles: this.state.tentativelyPlayedTiles,
-	        onBoardCellClicked: this.handleBoardCellClicked
+	        onBoardCellClicked: this.handleBoardCellClicked,
+	        multiplierTiles: this.state.multiplierTiles
 	      }),
 	      _react2.default.createElement(_ErrorContainer2.default, { error: this.state.error }),
 	      _react2.default.createElement(_ScoreDisplay2.default, { score: this.state.playerScore }),
@@ -49115,7 +49118,7 @@
 	    var self = this;
 	    var tiles = this.props.playerTiles.map(function (tile) {
 	      if (!tile) {
-	        //TODO actually render something so that the TileRack can be correct size
+	        // TODO actually render something so that the TileRack can be correct size
 	        return null;
 	      }
 	      var selected = false;
@@ -49150,7 +49153,7 @@
 /* 186 */
 /***/ function(module, exports, __webpack_require__) {
 
-	"use strict";
+	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
@@ -49163,31 +49166,31 @@
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	var Tile = _react2.default.createClass({
-	  displayName: "Tile",
+	  displayName: 'Tile',
 
 	  handleClick: function handleClick(e) {
 	    this.props.onTileClicked(this.props.tileId);
 	  },
 
 	  render: function render() {
-	    var className = "Tile";
+	    var className = 'Tile';
 	    if (this.props.tentative) {
-	      className += " tentative";
+	      className += ' tentative';
 	    }
 	    if (this.props.selected) {
-	      className += " selected";
+	      className += ' selected';
 	    }
 	    return _react2.default.createElement(
-	      "div",
+	      'div',
 	      { className: className, onClick: this.handleClick },
 	      _react2.default.createElement(
-	        "span",
-	        { className: "Letter" },
+	        'span',
+	        { className: 'Letter' },
 	        this.props.letter
 	      ),
 	      _react2.default.createElement(
-	        "span",
-	        { className: "Score" },
+	        'span',
+	        { className: 'Score' },
 	        this.props.score
 	      )
 	    );
@@ -49347,11 +49350,44 @@
 	    var self = this;
 	    var boardRows = _.range(15).map(function (rowIndex) {
 	      var squares = _.range(15).map(function (colIndex) {
-	        var square;
+	        var square = void 0;
 	        var tile = self.findPlayedTile(colIndex, rowIndex) || self.findTentativelyPlayedTile(colIndex, rowIndex);
+	        var tripleWordScore = false;
+	        if (_.find(self.props.multiplierTiles.tripleWord, [colIndex, rowIndex])) {
+	          tripleWordScore = true;
+	        }
+	        var tripleLetterScore = false;
+	        if (_.find(self.props.multiplierTiles.tripleLetter, [colIndex, rowIndex])) {
+	          tripleLetterScore = true;
+	        }
+	        var doubleWordScore = false;
+	        if (_.find(self.props.multiplierTiles.doubleWord, [colIndex, rowIndex])) {
+	          doubleWordScore = true;
+	        }
+	        var doubleLetterScore = false;
+	        if (_.find(self.props.multiplierTiles.doubleLetter, [colIndex, rowIndex])) {
+	          doubleLetterScore = true;
+	        }
+	        if (tripleWordScore) {
+	          console.log('******');
+	          console.log(self.props.multiplierTiles.tripleWord);
+	          console.log('colIndex: ' + colIndex);
+	          console.log('rowIndex: ' + rowIndex);
+	          console.log(tripleWordScore);
+	          console.log(tripleLetterScore);
+	        }
 	        return _react2.default.createElement(
 	          _BoardCell2.default,
-	          { key: colIndex, colIndex: colIndex, rowIndex: rowIndex, onCellClicked: self.handleCellClick },
+	          {
+	            key: colIndex,
+	            colIndex: colIndex,
+	            rowIndex: rowIndex,
+	            onCellClicked: self.handleCellClick,
+	            tripleWordScore: tripleWordScore,
+	            tripleLetterScore: tripleLetterScore,
+	            doubleWordScore: doubleWordScore,
+	            doubleLetterScore: doubleLetterScore
+	          },
 	          tile
 	        );
 	        return square;
@@ -49380,7 +49416,7 @@
 /* 190 */
 /***/ function(module, exports, __webpack_require__) {
 
-	"use strict";
+	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
@@ -49393,16 +49429,29 @@
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	var BoardCell = _react2.default.createClass({
-	  displayName: "BoardCell",
+	  displayName: 'BoardCell',
 
 	  handleClick: function handleClick() {
 	    this.props.onCellClicked(this.props.colIndex, this.props.rowIndex);
 	  },
 
 	  render: function render() {
+	    var className = 'BoardCell';
+	    if (this.props.tripleWordScore) {
+	      className += ' tripleWordScore';
+	    }
+	    if (this.props.doubleWordScore) {
+	      className += ' doubleWordScore';
+	    }
+	    if (this.props.tripleLetterScore) {
+	      className += ' tripleLetterScore';
+	    }
+	    if (this.props.doubleLetterScore) {
+	      className += ' doubleLetterScore';
+	    }
 	    return _react2.default.createElement(
-	      "td",
-	      { className: "BoardCell", onClick: this.handleClick },
+	      'td',
+	      { className: className, onClick: this.handleClick },
 	      this.props.children
 	    );
 	  }

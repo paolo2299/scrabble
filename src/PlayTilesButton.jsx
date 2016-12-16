@@ -1,8 +1,8 @@
-import React from 'react';
+import React from 'react'
 
 const PlayTilesButton = React.createClass({
   handleClick: function() {
-    this.props.onClick();
+    this.props.onClick()
   },
 
   render: function() {
@@ -11,7 +11,7 @@ const PlayTilesButton = React.createClass({
         Play
       </button>
     )
-  }
-});
+  },
+})
 
-export default PlayTilesButton;
+export default PlayTilesButton

@@ -156,6 +156,26 @@ class Board
     @placed_this_turn << position
   end
 
+  def newly_played_tile?(position)
+    @placed_this_turn.include?(position)
+  end
+
+  def triple_letter_score?(position)
+    TRIPLE_LETTER_SCORES.include?(position)
+  end
+
+  def triple_word_score?(position)
+    TRIPLE_WORD_SCORES.include?(position)
+  end
+
+  def double_letter_score?(position)
+    DOUBLE_LETTER_SCORES.include?(position)
+  end
+
+  def double_word_score?(position)
+    DOUBLE_WORD_SCORES.include?(position)
+  end
+
   def all_played_words
     played_words = []
     rows = (0..(HEIGHT - 1)).map do |row_num|
@@ -183,10 +203,12 @@ class Board
     end
     {
       "playedTiles" => played_tiles,
-      "tripleWordTiles" => self.class::TRIPLE_WORD_SCORES,
-      "doubleWordTiles" => self.class::DOUBLE_WORD_SCORES,
-      "tripleLetterTiles" => self.class::TRIPLE_LETTER_SCORES,
-      "doubleLetterTiles" => self.class::DOUBLE_LETTER_SCORES
+      "multiplierTiles" => {
+        "tripleWord" => self.class::TRIPLE_WORD_SCORES,
+        "doubleWord" => self.class::DOUBLE_WORD_SCORES,
+        "tripleLetter" => self.class::TRIPLE_LETTER_SCORES,
+        "doubleLetter" => self.class::DOUBLE_LETTER_SCORES
+      }
     }
   end
 
@@ -246,14 +268,12 @@ class Board
 end
 
 class PlayedWord
-  attr_reader :position
-  attr_reader :direction
+  attr_reader :positions
 
   def initialize(tiles, positions, board)
     @board = board
     @tiles = tiles
     @positions = positions
-    @direction = direction
   end
 
   def to_s
@@ -261,17 +281,34 @@ class PlayedWord
   end
 
   def score
-    #word_score = 0
-    #multiplier = 1
-    #@tiles.each_with_index do |tile, index|
-
-    #end
-    #word_score * multiplier
-    @tiles.map(&:score).inject(&:+)
+    #@tiles.map(&:score).inject(&:+)
+    word_score = 0
+    multiplier = 1
+    @tiles.each_with_index do |tile, index|
+      if @board.newly_played_tile?(positions[index])
+        #deal with letter multipliers
+        if @board.triple_letter_score?(positions[index])
+          word_score += tile.score * 3
+        elsif @board.double_letter_score?(positions[index])
+          word_score += tile.score * 2
+        else
+          word_score += tile.score
+        end
+        #deal with word multipliers
+        if @board.triple_word_score?(positions[index])
+          multiplier *= 3
+        elsif @board.double_word_score?(positions[index])
+          multiplier *= 2
+        end
+      else
+        word_score += tile.score
+      end
+    end
+    word_score * multiplier
   end
 
   def ==(another_played_word)
-    self.word.to_s == another_played_word.to_s &&
+    self.to_s == another_played_word.to_s &&
       self.positions == another_played_word.positions
   end
 end
