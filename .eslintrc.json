@@ -6,6 +6,9 @@
       "jasmine",
       "lodash"
     ],
+    "globals": {
+      "document": true
+    },
     "parser": "babel-eslint",
     "rules": {
       "camelcase": 0,

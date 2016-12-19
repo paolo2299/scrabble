@@ -15,7 +15,10 @@ const Board = React.createClass({
 
   findPlayedTile: function(colIndex, rowIndex) {
     let tile = null
-    let tileData = this.findByPosition(this.props.playedTiles, [colIndex, rowIndex])
+    let tileData = this.findByPosition(
+      this.props.playedTiles,
+      [colIndex, rowIndex]
+    )
     if (tileData) {
       tile = <Tile
         key={tileData.id}
@@ -31,7 +34,10 @@ const Board = React.createClass({
     let tile = null
     let tileData = null
     let tileId = null
-    let tileIndexData = this.findByPosition(this.props.tentativelyPlayedTiles, [colIndex, rowIndex])
+    let tileIndexData = this.findByPosition(
+      this.props.tentativelyPlayedTiles,
+      [colIndex, rowIndex]
+    )
     if (tileIndexData) {
       tileId = tileIndexData.id
       tileData = _.find(this.props.playerTiles, {'id': tileId})
@@ -56,29 +62,22 @@ const Board = React.createClass({
         let square
         let tile = self.findPlayedTile(colIndex, rowIndex) ||
                    self.findTentativelyPlayedTile(colIndex, rowIndex)
+        let multiplierTiles = self.props.multiplierTiles
         let tripleWordScore = false
-        if ( _.find(self.props.multiplierTiles.tripleWord, [colIndex, rowIndex]) ) {
+        if ( _.find(multiplierTiles.tripleWord, [colIndex, rowIndex]) ) {
           tripleWordScore = true
         }
         let tripleLetterScore = false
-        if ( _.find(self.props.multiplierTiles.tripleLetter, [colIndex, rowIndex]) ) {
+        if ( _.find(multiplierTiles.tripleLetter, [colIndex, rowIndex]) ) {
           tripleLetterScore = true
         }
         let doubleWordScore = false
-        if ( _.find(self.props.multiplierTiles.doubleWord, [colIndex, rowIndex]) ) {
+        if ( _.find(multiplierTiles.doubleWord, [colIndex, rowIndex]) ) {
           doubleWordScore = true
         }
         let doubleLetterScore = false
-        if ( _.find(self.props.multiplierTiles.doubleLetter, [colIndex, rowIndex]) ) {
+        if ( _.find(multiplierTiles.doubleLetter, [colIndex, rowIndex]) ) {
           doubleLetterScore = true
-        }
-        if (tripleWordScore) {
-          console.log('******')
-          console.log(self.props.multiplierTiles.tripleWord)
-          console.log('colIndex: ' + colIndex)
-          console.log('rowIndex: ' + rowIndex)
-          console.log(tripleWordScore)
-          console.log(tripleLetterScore)
         }
         return (
           <BoardCell

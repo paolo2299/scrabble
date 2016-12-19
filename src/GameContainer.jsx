@@ -50,16 +50,22 @@ const GameContainer = React.createClass({
   },
 
   handleBoardCellClicked: function(colIndex, rowIndex) {
-    let allTiles = this.state.tentativelyPlayedTiles + this.state.playedTiles
+    let tentativelyPlayedTiles = this.state.tentativelyPlayedTiles
+    let allTiles = tentativelyPlayedTiles + this.state.playedTiles
     if (this.findByPosition(allTiles, [colIndex, rowIndex])) {
       return
     }
     if (!this.state.selectedTileId) {
       return
     }
-    let selectedTile = _.find(this.state.playerTiles, {id: this.state.selectedTileId})
+    let selectedTile = _.find(
+      this.state.playerTiles,
+      {id: this.state.selectedTileId}
+    )
     selectedTile.position = [colIndex, rowIndex]
-    this.setState({tentativelyPlayedTiles: this.state.tentativelyPlayedTiles.concat([selectedTile])})
+    this.setState(
+      {tentativelyPlayedTiles: tentativelyPlayedTiles.concat([selectedTile])}
+    )
     this.setState({selectedTileId: null})
   },
 
@@ -68,12 +74,14 @@ const GameContainer = React.createClass({
     let errorType = error.error_data.type
     // TODO case statement?
     if (errorType === 'FirstMoveNotOnCenterError') {
-      errorMessage = 'The first word placed on the board needs to cross the center square.'
+      errorMessage = 'The first word placed on the board ' +
+                     'needs to cross the center square.'
     } else if (errorType === 'InvalidWordError') {
       let invalidWord = error.error_data.invalid_words[0]
       errorMessage = invalidWord + ' is not a real word.'
     } else if (errorType === 'NotInSameRowOrSameColumnError') {
-      errorMessage = 'Tiles must all be placed on the same row or the same column.'
+      errorMessage = 'Tiles must all be placed on the same ' +
+                     'row or the same column.'
     } else if (errorType === 'GapError') {
       errorMessage = 'You left a gap in a place that\'s not allowed.'
     } else if (errorType === 'DidNotBuildOnExistingWordsError') {

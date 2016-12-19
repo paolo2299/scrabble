@@ -11,7 +11,8 @@ const TileRack = React.createClass({
     let self = this
     let tiles = this.props.playerTiles.map(function(tile) {
       if (!tile) {
-        // TODO actually render something so that the TileRack can be correct size
+        // TODO actually render something so that the TileRack
+        // can be correct size
         return null
       }
       let selected = false
