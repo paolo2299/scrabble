@@ -70,24 +70,29 @@ const GameContainer = React.createClass({
   },
 
   errorMessageFromError: function(error) {
-    let errorMessage = 'Invalid move.'
-    let errorType = error.error_data.type
-    // TODO case statement?
-    if (errorType === 'FirstMoveNotOnCenterError') {
-      errorMessage = 'The first word placed on the board ' +
-                     'needs to cross the center square.'
-    } else if (errorType === 'InvalidWordError') {
-      let invalidWord = error.error_data.invalid_words[0]
-      errorMessage = invalidWord + ' is not a real word.'
-    } else if (errorType === 'NotInSameRowOrSameColumnError') {
-      errorMessage = 'Tiles must all be placed on the same ' +
-                     'row or the same column.'
-    } else if (errorType === 'GapError') {
-      errorMessage = 'You left a gap in a place that\'s not allowed.'
-    } else if (errorType === 'DidNotBuildOnExistingWordsError') {
-      errorMessage = 'You must build on the words already placed on the board.'
+    let errMessage = 'Invalid move.'
+    let errType = error.error_data.type
+    switch (errType) {
+      case 'FirstMoveNotOnCenterError':
+        errMessage = 'The first word placed on the board ' +
+                       'needs to cross the center square.'
+        break
+      case 'InvalidWordError':
+        let invalidWord = error.error_data.invalid_words[0]
+        errMessage = invalidWord + ' is not a real word.'
+        break
+      case 'NotInSameRowOrSameColumnError':
+        errMessage = 'Tiles must all be placed on the same ' +
+                       'row or the same column.'
+        break
+      case 'GapError':
+        errMessage = 'You left a gap in a place that\'s not allowed.'
+        break
+      case 'DidNotBuildOnExistingWordsError':
+        errMessage = 'You must build on the words already placed on the board.'
+        break
     }
-    return errorMessage
+    return errMessage
   },
 
   reset: function() {
