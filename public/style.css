@@ -31,6 +31,26 @@
   -khtml-user-select: none;
 }
 
+.BoardCell.tripleWordScore {
+  background-color: #F75D59;
+  background:-webkit-gradient(linear, 100% 100%, 0% 5%, from(#F75D59), to(#F75D59));
+}
+
+.BoardCell.doubleWordScore {
+  background-color: #FBBBB9;
+  background:-webkit-gradient(linear, 100% 100%, 0% 5%, from(#FBBBB9), to(#FBBBB9));
+}
+
+.BoardCell.tripleLetterScore {
+  background-color: #157DEC;
+  background:-webkit-gradient(linear, 100% 100%, 0% 5%, from(#157DEC), to(#157DEC));
+}
+
+.BoardCell.doubleLetterScore {
+  background-color: #A0CFEC;
+  background:-webkit-gradient(linear, 100% 100%, 0% 5%, from(#A0CFEC), to(#A0CFEC));
+}
+
 .Tile.selected {
   top: -20px;
   color: green;
