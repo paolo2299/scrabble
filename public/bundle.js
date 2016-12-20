@@ -21566,7 +21566,8 @@
 	  },
 
 	  handleBoardCellClicked: function handleBoardCellClicked(colIndex, rowIndex) {
-	    var allTiles = this.state.tentativelyPlayedTiles + this.state.playedTiles;
+	    var tentativelyPlayedTiles = this.state.tentativelyPlayedTiles;
+	    var allTiles = tentativelyPlayedTiles + this.state.playedTiles;
 	    if (this.findByPosition(allTiles, [colIndex, rowIndex])) {
 	      return;
 	    }
@@ -21575,27 +21576,32 @@
 	    }
 	    var selectedTile = _.find(this.state.playerTiles, { id: this.state.selectedTileId });
 	    selectedTile.position = [colIndex, rowIndex];
-	    this.setState({ tentativelyPlayedTiles: this.state.tentativelyPlayedTiles.concat([selectedTile]) });
+	    this.setState({ tentativelyPlayedTiles: tentativelyPlayedTiles.concat([selectedTile]) });
 	    this.setState({ selectedTileId: null });
 	  },
 
 	  errorMessageFromError: function errorMessageFromError(error) {
-	    var errorMessage = 'Invalid move.';
-	    var errorType = error.error_data.type;
-	    // TODO case statement?
-	    if (errorType === 'FirstMoveNotOnCenterError') {
-	      errorMessage = 'The first word placed on the board needs to cross the center square.';
-	    } else if (errorType === 'InvalidWordError') {
-	      var invalidWord = error.error_data.invalid_words[0];
-	      errorMessage = invalidWord + ' is not a real word.';
-	    } else if (errorType === 'NotInSameRowOrSameColumnError') {
-	      errorMessage = 'Tiles must all be placed on the same row or the same column.';
-	    } else if (errorType === 'GapError') {
-	      errorMessage = 'You left a gap in a place that\'s not allowed.';
-	    } else if (errorType === 'DidNotBuildOnExistingWordsError') {
-	      errorMessage = 'You must build on the words already placed on the board.';
+	    var errMessage = 'Invalid move.';
+	    var errType = error.error_data.type;
+	    switch (errType) {
+	      case 'FirstMoveNotOnCenterError':
+	        errMessage = 'The first word placed on the board ' + 'needs to cross the center square.';
+	        break;
+	      case 'InvalidWordError':
+	        var invalidWord = error.error_data.invalid_words[0];
+	        errMessage = invalidWord + ' is not a real word.';
+	        break;
+	      case 'NotInSameRowOrSameColumnError':
+	        errMessage = 'Tiles must all be placed on the same ' + 'row or the same column.';
+	        break;
+	      case 'GapError':
+	        errMessage = 'You left a gap in a place that\'s not allowed.';
+	        break;
+	      case 'DidNotBuildOnExistingWordsError':
+	        errMessage = 'You must build on the words already placed on the board.';
+	        break;
 	    }
-	    return errorMessage;
+	    return errMessage;
 	  },
 
 	  reset: function reset() {
@@ -49005,9 +49011,23 @@
 
 	var Util = {
 	  findByAttribute: function findByAttribute(collection, attribute, value) {
-	    return _.find(collection, function (x) {
+	    var item = _.find(collection, function (x) {
 	      return _.isEqual(x[attribute], value);
 	    });
+	    if (typeof item !== 'undefined') {
+	      return true;
+	    }
+	    return false;
+	  },
+
+	  findByValue: function findByValue(collection, value) {
+	    var item = _.find(collection, function (x) {
+	      return _.isEqual(x, value);
+	    });
+	    if (typeof item !== 'undefined') {
+	      return true;
+	    }
+	    return false;
 	  }
 	};
 
@@ -49039,7 +49059,10 @@
 	  render: function render() {
 	    return _react2.default.createElement(
 	      "button",
-	      { className: "PlayTilesButton action-button", onClick: this.handleClick },
+	      {
+	        className: "PlayTilesButton action-button",
+	        onClick: this.handleClick
+	      },
 	      "Play"
 	    );
 	  }
@@ -49118,7 +49141,8 @@
 	    var self = this;
 	    var tiles = this.props.playerTiles.map(function (tile) {
 	      if (!tile) {
-	        // TODO actually render something so that the TileRack can be correct size
+	        // TODO actually render something so that the TileRack
+	        // can be correct size
 	        return null;
 	      }
 	      var selected = false;
@@ -49352,30 +49376,11 @@
 	      var squares = _.range(15).map(function (colIndex) {
 	        var square = void 0;
 	        var tile = self.findPlayedTile(colIndex, rowIndex) || self.findTentativelyPlayedTile(colIndex, rowIndex);
-	        var tripleWordScore = false;
-	        if (_.find(self.props.multiplierTiles.tripleWord, [colIndex, rowIndex])) {
-	          tripleWordScore = true;
-	        }
-	        var tripleLetterScore = false;
-	        if (_.find(self.props.multiplierTiles.tripleLetter, [colIndex, rowIndex])) {
-	          tripleLetterScore = true;
-	        }
-	        var doubleWordScore = false;
-	        if (_.find(self.props.multiplierTiles.doubleWord, [colIndex, rowIndex])) {
-	          doubleWordScore = true;
-	        }
-	        var doubleLetterScore = false;
-	        if (_.find(self.props.multiplierTiles.doubleLetter, [colIndex, rowIndex])) {
-	          doubleLetterScore = true;
-	        }
-	        if (tripleWordScore) {
-	          console.log('******');
-	          console.log(self.props.multiplierTiles.tripleWord);
-	          console.log('colIndex: ' + colIndex);
-	          console.log('rowIndex: ' + rowIndex);
-	          console.log(tripleWordScore);
-	          console.log(tripleLetterScore);
-	        }
+	        var multiplierTiles = self.props.multiplierTiles;
+	        var tripleWordScore = _Util2.default.findByValue(multiplierTiles.tripleWord, [colIndex, rowIndex]);
+	        var tripleLetterScore = _Util2.default.findByValue(multiplierTiles.tripleLetter, [colIndex, rowIndex]);
+	        var doubleWordScore = _Util2.default.findByValue(multiplierTiles.doubleWord, [colIndex, rowIndex]);
+	        var doubleLetterScore = _Util2.default.findByValue(multiplierTiles.doubleLetter, [colIndex, rowIndex]);
 	        return _react2.default.createElement(
 	          _BoardCell2.default,
 	          {

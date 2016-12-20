@@ -63,22 +63,22 @@ const Board = React.createClass({
         let tile = self.findPlayedTile(colIndex, rowIndex) ||
                    self.findTentativelyPlayedTile(colIndex, rowIndex)
         let multiplierTiles = self.props.multiplierTiles
-        let tripleWordScore = false
-        if ( _.find(multiplierTiles.tripleWord, [colIndex, rowIndex]) ) {
-          tripleWordScore = true
-        }
-        let tripleLetterScore = false
-        if ( _.find(multiplierTiles.tripleLetter, [colIndex, rowIndex]) ) {
-          tripleLetterScore = true
-        }
-        let doubleWordScore = false
-        if ( _.find(multiplierTiles.doubleWord, [colIndex, rowIndex]) ) {
-          doubleWordScore = true
-        }
-        let doubleLetterScore = false
-        if ( _.find(multiplierTiles.doubleLetter, [colIndex, rowIndex]) ) {
-          doubleLetterScore = true
-        }
+        let tripleWordScore = Util.findByValue(
+          multiplierTiles.tripleWord,
+          [colIndex, rowIndex]
+        )
+        let tripleLetterScore = Util.findByValue(
+          multiplierTiles.tripleLetter,
+          [colIndex, rowIndex]
+        )
+        let doubleWordScore = Util.findByValue(
+          multiplierTiles.doubleWord,
+          [colIndex, rowIndex]
+        )
+        let doubleLetterScore = Util.findByValue(
+          multiplierTiles.doubleLetter,
+          [colIndex, rowIndex]
+        )
         return (
           <BoardCell
             key={colIndex}
