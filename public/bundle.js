@@ -21571,7 +21571,7 @@
 	    if (this.findByPosition(allTiles, [colIndex, rowIndex])) {
 	      return;
 	    }
-	    if (!this.state.selectedTileId) {
+	    if (this.state.selectedTileId !== null) {
 	      return;
 	    }
 	    var selectedTile = _.find(this.state.playerTiles, { id: this.state.selectedTileId });
@@ -49011,13 +49011,9 @@
 
 	var Util = {
 	  findByAttribute: function findByAttribute(collection, attribute, value) {
-	    var item = _.find(collection, function (x) {
+	    return _.find(collection, function (x) {
 	      return _.isEqual(x[attribute], value);
 	    });
-	    if (typeof item !== 'undefined') {
-	      return true;
-	    }
-	    return false;
 	  },
 
 	  findByValue: function findByValue(collection, value) {
