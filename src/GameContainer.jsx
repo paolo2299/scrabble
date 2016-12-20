@@ -55,7 +55,7 @@ const GameContainer = React.createClass({
     if (this.findByPosition(allTiles, [colIndex, rowIndex])) {
       return
     }
-    if (!this.state.selectedTileId) {
+    if (this.state.selectedTileId !== null) {
       return
     }
     let selectedTile = _.find(
