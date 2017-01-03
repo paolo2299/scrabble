@@ -1,14 +1,19 @@
 require 'spec_helper'
 require 'board'
 require 'tile'
+require 'tile_bag'
 
 describe Board do
 
   def tile(letter)
+    tile_bag = TileBag.new_tile_bag
     tile_bag.take_tile_with_letter!(letter)
   end
 
-  let(:tile_bag) { TileBag.new_tile_bag  }
+  def tiles(string)
+    string.chars.map{|c| tile(c)}
+  end
+
   subject { Board.new_board }
 
   describe ".load_from_string!" do
@@ -222,19 +227,124 @@ describe Board do
     end
 
     it "should return all words" do
+      board = Board.new_board
+
       expect(subject.all_played_words).to eq([
-        PlayedWord.new("PARROT", [1, 1], :across),
-        PlayedWord.new("IT", [1, 2], :across),
-        PlayedWord.new("AS", [6, 2], :across),
-        PlayedWord.new("ARMPIT", [1, 4], :across),
-        PlayedWord.new("OAT", [3, 5], :across),
-        PlayedWord.new("PI", [1, 1], :down),
-        PlayedWord.new("CATER", [2, 0], :down),
-        PlayedWord.new("MO", [3, 4], :down),
-        PlayedWord.new("RAMPART", [4, 1], :down),
-        PlayedWord.new("SO", [5, 0], :down),
-        PlayedWord.new("IT", [5, 4], :down),
-        PlayedWord.new("TART", [6, 1], :down)
+        PlayedWord.new(
+          tiles("PARROT"),
+          [
+            [1, 1],
+            [2, 1],
+            [3, 1],
+            [4, 1],
+            [5, 1],
+            [6, 1]
+          ],
+          board
+        ),
+        PlayedWord.new(
+          tiles("IT"),
+          [
+            [1, 2],
+            [2, 2]
+          ],
+          board
+        ),
+        PlayedWord.new(
+          tiles("AS"),
+          [
+            [6, 2],
+            [7, 2]
+          ],
+          board
+        ),
+        PlayedWord.new(
+          tiles("ARMPIT"),
+          [
+            [1, 4],
+            [2, 4],
+            [3, 4],
+            [4, 4],
+            [5, 4],
+            [6, 4]
+          ],
+          board
+        ),
+        PlayedWord.new(
+          tiles("OAT"),
+          [
+            [3, 5],
+            [4, 5],
+            [5, 5]
+          ],
+          board
+        ),
+        PlayedWord.new(
+          tiles("PI"),
+          [
+            [1, 1],
+            [1, 2]
+          ],
+          board
+        ),
+        PlayedWord.new(
+          tiles("CATER"),
+          [
+            [2, 0],
+            [2, 1],
+            [2, 2],
+            [2, 3],
+            [2, 4]
+          ],
+          board
+        ),
+        PlayedWord.new(
+          tiles("MO"),
+          [
+            [3, 4],
+            [3, 5]
+          ],
+          board
+        ),
+        PlayedWord.new(
+          tiles("RAMPART"),
+          [
+            [4, 1],
+            [4, 2],
+            [4, 3],
+            [4, 4],
+            [4, 5],
+            [4, 6],
+            [4, 7]
+          ],
+          board
+        ),
+        PlayedWord.new(
+          tiles("SO"),
+          [
+            [5, 0],
+            [5, 1]
+          ],
+          board
+        ),
+        PlayedWord.new(
+          tiles("IT"),
+          [
+            [5, 4],
+            [5, 5]
+          ],
+          board
+        ),
+        PlayedWord.new(
+          tiles("TART"),
+          [
+            [6, 1],
+            [6, 2],
+            [6, 3],
+            [6, 4]
+          ],
+          board
+        ),
       ])
     end
   end

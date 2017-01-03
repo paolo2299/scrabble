@@ -41,7 +41,7 @@ describe Game do
     rack
   end
 
-  let(:player) { Player.new(Player::PLAYER1, tile_rack) }
+  let(:player) { Player.new(Player::PLAYER1, tile_rack, 0) }
 
   subject { Game.new(game_id, board, tile_bag, player) }
 
@@ -68,7 +68,7 @@ describe Game do
       subject { Game.new(board, tile_bag, :player2) }
 
       it "should cause the current player to be player1" do
-        pending("intriduction of 2 player games")
+        pending("introduction of 2 player games")
         tiles = [
           PositionedTile.new(tile("c"), [7, 5]),
           PositionedTile.new(tile("a"), [7, 6]),
@@ -306,7 +306,7 @@ describe Game do
   describe "pass!" do
     context "when the current player is player1" do
       it "should cause the current player to be player2" do
-        pending("intriduction of 2 player games")
+        pending("introduction of 2 player games")
         subject.pass!
         expect(subject.to_hash.fetch(:player)).to eq(:player2)
       end
@@ -316,7 +316,7 @@ describe Game do
       subject { Game.new(board, tile_bag, :player2) }
 
       it "should cause the current player to be player1" do
-        pending("intriduction of 2 player games")
+        pending("introduction of 2 player games")
         subject.pass!
         expect(subject.to_hash.fetch(:player)).to eq(:player1)
       end
