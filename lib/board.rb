@@ -1,5 +1,7 @@
 require 'json'
 
+require_relative './tile_bag'
+
 class Board
   class InvalidTilePlacementError < StandardError; end
 
@@ -253,9 +255,8 @@ class Board
           word_positions = []
         else
           word_tiles << tile
-          #TODO check this is the right way round
           word_positions << case orientation
-            when :across then [index2, index1]
+            when :row then [index2, index1]
             else [index1, index2]
           end
           if index2 == row_or_col.size - 1
