@@ -10,6 +10,18 @@ import ScoreDisplay from './ScoreDisplay.jsx'
 import Board from './Board.jsx'
 
 const GameContainer = React.createClass({
+  getInitialState: function() {
+    let initialState = {
+      playedTiles: [],
+      playerTiles: [],
+      playerScore: 0,
+      selectedTileId: null,
+      tentativelyPlayedTiles: [],
+      multiplierTiles: {},
+    }
+    return initialState
+  },
+
   componentDidMount: function() {
     let self = this
     $.post('/games', {}, function(response) {
@@ -30,18 +42,6 @@ const GameContainer = React.createClass({
     return Util.findByAttribute(tiles, 'position', position)
   },
 
-  getInitialState: function() {
-    let initialState = {
-      playedTiles: [],
-      playerTiles: [],
-      playerScore: 0,
-      selectedTileId: null,
-      tentativelyPlayedTiles: [],
-      multiplierTiles: {},
-    }
-    return initialState
-  },
-
   handleTileRackTileClicked: function(tileId) {
     if (_.find(this.state.tentativelyPlayedTiles, {id: tileId})) {
       return
@@ -51,11 +51,11 @@ const GameContainer = React.createClass({
 
   handleBoardCellClicked: function(colIndex, rowIndex) {
     let tentativelyPlayedTiles = this.state.tentativelyPlayedTiles
-    let allTiles = tentativelyPlayedTiles + this.state.playedTiles
+    let allTiles = tentativelyPlayedTiles.concat(this.state.playedTiles)
     if (this.findByPosition(allTiles, [colIndex, rowIndex])) {
       return
     }
-    if (this.state.selectedTileId !== null) {
+    if (this.state.selectedTileId === null) {
       return
     }
     let selectedTile = _.find(
