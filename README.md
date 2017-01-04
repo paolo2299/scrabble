@@ -1,21 +1,25 @@
-TO SET UP
+## Setting up
 
-bundle install --path=vendor/bundle
-npm install -g webpack
+    bundle install --path=vendor/bundle
+    npm install -g webpack
 
-TO RUN
+## To run the application
 
-bundle exec ruby app.rb
-open "http://localhost:4567/index.html"
+    bundle exec ruby app.rb
+    open "http://localhost:4567/index.html"
 
-TO MAKE CHANGES TO THE JAVASCRIPT
+## Making changes to the Javascript
 
-webpack
+The Javascript code lives in the *src* directory. After making changes, run
 
-TO LINT THE JAVASCRIPT
+    webpack
 
-./node_modules/.bin/eslint src/*
+to build *public/bundle.js*
 
-TO RUN THE RUBY TESTS
+## Linting the Javascript
 
-bundle exec rspec spec
+    ./node_modules/.bin/eslint src/*
+
+## Running the ruby tests
+
+    bundle exec rspec spec
