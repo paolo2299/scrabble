@@ -1,5 +1,6 @@
 require 'spec_helper'
 require 'board'
+require 'played_word'
 require 'tile'
 require 'tile_bag'
 
