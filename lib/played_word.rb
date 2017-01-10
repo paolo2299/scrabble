@@ -12,7 +12,6 @@ class PlayedWord
   end
 
   def score
-    #@tiles.map(&:score).inject(&:+)
     word_score = 0
     multiplier = 1
     @tiles.each_with_index do |tile, index|
