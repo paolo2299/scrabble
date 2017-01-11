@@ -35,7 +35,8 @@ class Board
     [13, 13],
     [12, 12],
     [11, 11],
-    [10, 10]
+    [10, 10],
+    CENTER
   ].freeze
   TRIPLE_LETTER_SCORES = [
     [5, 1],
