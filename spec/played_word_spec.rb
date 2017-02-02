@@ -70,14 +70,16 @@ describe PlayedWord do
 ---------------
       }
     end
-    let(:positions) { [] }
     let(:tiles) { [] }
+    let(:positions) { [] }
     let(:board) { Board.load_from_string!(board_string) }
     subject { described_class.new(tiles, positions, board) }
 
     before do
-      positions.each do |position|
-        expect(board).to receive(:newly_played_tile?).with(position).and_return(true)
+      tiles.zip(positions).each do |tile, position|
+        if board.tile(position).nil?
+          board.place_tile!(tile, position)
+        end
       end
     end
 
@@ -91,6 +93,111 @@ describe PlayedWord do
 
       it "should score double" do
         expect(subject.score).to eq(10)
+      end
+    end
+
+    context "with a populated board" do
+      let(:board_string) do
+        %Q{
+---------------
+---------------
+---------------
+---------------
+-------E-------
+WILLFULL-------
+-------O-------
+-------Q-------
+-------U-------
+------PENITENT-
+-------N----O--
+-------T----G--
+------------G--
+------------I--
+------------N--
+        }
+      end
+
+      context "an existing letter is on a multiplier but all new letters have no multiplier" do
+        let(:tiles) { generate_tiles("EQUAL") }
+        let(:positions) { [[6, 7], [7, 7], [8, 7], [9, 7], [10, 7]] }
+        # results in
+        # ---------------
+        # ---------------
+        # ---------------
+        # ---------------
+        # -------E-------
+        # WILLFULL-------
+        # -------O-------
+        # ------eQual----
+        # -------U-------
+        # ------PENITENT-
+        # -------N----O--
+        # -------T----G--
+        # ------------G--
+        # ------------I--
+        # ------------N--
+        # where the existing Q is on a double word score
+
+        it "should give the correct score" do
+          # (E = 1) + (Q = 10) + (U = 1) + (A = 1) + (L = 1) = 14
+          expect(subject.score).to eq(14)
+        end
+      end
+
+      context "placing a word on a double letter and a triple word score" do
+        let(:tiles) { generate_tiles("SNUG") }
+        let(:positions) { [[11, 14], [12, 14], [13, 14], [14, 14]] }
+        # results in
+        # ---------------
+        # ---------------
+        # ---------------
+        # ---------------
+        # -------E-------
+        # WILLFULL-------
+        # -------O-------
+        # -------Q-------
+        # -------U-------
+        # ------PENITENT-
+        # -------N----O--
+        # -------T----G--
+        # ------------G--
+        # ------------I--
+        # -----------sNug
+        # where the s of snug is on a double letter score
+        # and the g is on a triple word score
+
+        it "should give the correct score" do
+          # ((S = 1) * 2 + (N = 1) + (U = 1) + (G = 2)) * 3 = 18
+          expect(subject.score).to eq(18)
+        end
+      end
+
+      context "placing a word on a triple letter and triple word score" do
+        let(:tiles) { generate_tiles("PRAISE") }
+        let(:positions) { [[9, 13], [10, 13], [11, 13], [12, 13], [13, 13], [14, 13]] }
+        # results in
+        # ---------------
+        # ---------------
+        # ---------------
+        # ---------------
+        # -------E-------
+        # WILLFULL-------
+        # -------O-------
+        # -------Q-------
+        # -------U-------
+        # ------PENITENT-
+        # -------N----O--
+        # -------T----G--
+        # ------------G--
+        # ---------praIse
+        # ------------N--
+        # where the p of praise is on a triple letter score
+        # and the s is on a double word score
+
+        it "should give the correct score" do
+          # ((P = 3) * 3 + (R = 1) + (A = 1) + (I = 1) + (S = 1) + (E = 1)) * 2 = 28
+          expect(subject.score).to eq(28)
+        end
       end
     end
   end
