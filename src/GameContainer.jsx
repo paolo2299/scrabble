@@ -2,8 +2,6 @@ import * as _ from 'lodash'
 import * as $ from 'jquery'
 import React from 'react'
 import Util from './Util.js'
-import PlayTilesButton from './PlayTilesButton.jsx'
-import ResetButton from './ResetButton.jsx'
 import TileRack from './TileRack.jsx'
 import ErrorContainer from './ErrorContainer.jsx'
 import ScoreDisplay from './ScoreDisplay.jsx'
@@ -153,12 +151,12 @@ const GameContainer = React.createClass({
           tentativelyPlayedTiles={this.state.tentativelyPlayedTiles}
           onTileClicked={this.handleTileRackTileClicked}
         />
-        <PlayTilesButton onClick={this.playTiles}>
+        <button className="action-button" onClick={this.playTiles}>
           play
-        </PlayTilesButton>
-        <ResetButton onClick={this.reset}>
+        </button>
+        <button className="action-button" onClick={this.reset}>
           reset
-        </ResetButton>
+        </button>
       </div>
     )
   },

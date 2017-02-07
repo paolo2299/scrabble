@@ -21495,27 +21495,19 @@
 
 	var _Util2 = _interopRequireDefault(_Util);
 
-	var _PlayTilesButton = __webpack_require__(183);
-
-	var _PlayTilesButton2 = _interopRequireDefault(_PlayTilesButton);
-
-	var _ResetButton = __webpack_require__(184);
-
-	var _ResetButton2 = _interopRequireDefault(_ResetButton);
-
-	var _TileRack = __webpack_require__(185);
+	var _TileRack = __webpack_require__(183);
 
 	var _TileRack2 = _interopRequireDefault(_TileRack);
 
-	var _ErrorContainer = __webpack_require__(187);
+	var _ErrorContainer = __webpack_require__(185);
 
 	var _ErrorContainer2 = _interopRequireDefault(_ErrorContainer);
 
-	var _ScoreDisplay = __webpack_require__(188);
+	var _ScoreDisplay = __webpack_require__(186);
 
 	var _ScoreDisplay2 = _interopRequireDefault(_ScoreDisplay);
 
-	var _Board = __webpack_require__(189);
+	var _Board = __webpack_require__(187);
 
 	var _Board2 = _interopRequireDefault(_Board);
 
@@ -21664,13 +21656,13 @@
 	        onTileClicked: this.handleTileRackTileClicked
 	      }),
 	      _react2.default.createElement(
-	        _PlayTilesButton2.default,
-	        { onClick: this.playTiles },
+	        'button',
+	        { className: 'action-button', onClick: this.playTiles },
 	        'play'
 	      ),
 	      _react2.default.createElement(
-	        _ResetButton2.default,
-	        { onClick: this.reset },
+	        'button',
+	        { className: 'action-button', onClick: this.reset },
 	        'reset'
 	      )
 	    );
@@ -49033,77 +49025,6 @@
 /* 183 */
 /***/ function(module, exports, __webpack_require__) {
 
-	"use strict";
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _react = __webpack_require__(1);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	var PlayTilesButton = _react2.default.createClass({
-	  displayName: "PlayTilesButton",
-
-	  handleClick: function handleClick() {
-	    this.props.onClick();
-	  },
-
-	  render: function render() {
-	    return _react2.default.createElement(
-	      "button",
-	      {
-	        className: "PlayTilesButton action-button",
-	        onClick: this.handleClick
-	      },
-	      "Play"
-	    );
-	  }
-	});
-
-	exports.default = PlayTilesButton;
-
-/***/ },
-/* 184 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _react = __webpack_require__(1);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	var ResetButton = _react2.default.createClass({
-	  displayName: "ResetButton",
-
-	  handleClick: function handleClick() {
-	    this.props.onClick();
-	  },
-
-	  render: function render() {
-	    return _react2.default.createElement(
-	      "button",
-	      { className: "ResetButton action-button", onClick: this.handleClick },
-	      "Reset Tiles"
-	    );
-	  }
-	});
-
-	exports.default = ResetButton;
-
-/***/ },
-/* 185 */
-/***/ function(module, exports, __webpack_require__) {
-
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -49118,7 +49039,7 @@
 
 	var _ = _interopRequireWildcard(_lodash);
 
-	var _Tile = __webpack_require__(186);
+	var _Tile = __webpack_require__(184);
 
 	var _Tile2 = _interopRequireDefault(_Tile);
 
@@ -49170,7 +49091,7 @@
 	exports.default = TileRack;
 
 /***/ },
-/* 186 */
+/* 184 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -49220,7 +49141,7 @@
 	exports.default = Tile;
 
 /***/ },
-/* 187 */
+/* 185 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -49250,7 +49171,7 @@
 	exports.default = ErrorContainer;
 
 /***/ },
-/* 188 */
+/* 186 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -49286,7 +49207,7 @@
 	exports.default = ScoreDisplay;
 
 /***/ },
-/* 189 */
+/* 187 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -49307,11 +49228,11 @@
 
 	var _ = _interopRequireWildcard(_lodash);
 
-	var _BoardCell = __webpack_require__(190);
+	var _BoardCell = __webpack_require__(188);
 
 	var _BoardCell2 = _interopRequireDefault(_BoardCell);
 
-	var _Tile = __webpack_require__(186);
+	var _Tile = __webpack_require__(184);
 
 	var _Tile2 = _interopRequireDefault(_Tile);
 
@@ -49414,7 +49335,7 @@
 	exports.default = Board;
 
 /***/ },
-/* 190 */
+/* 188 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
