@@ -21520,6 +21520,7 @@
 
 	  getInitialState: function getInitialState() {
 	    var initialState = {
+	      gameId: null,
 	      playedTiles: [],
 	      playerTiles: [],
 	      playerScore: 0,
@@ -21530,7 +21531,7 @@
 	    return initialState;
 	  },
 
-	  componentDidMount: function componentDidMount() {
+	  startNewGame: function startNewGame() {
 	    var self = this;
 	    $.post('/games', {}, function (response) {
 	      self.setState({
@@ -21637,35 +21638,47 @@
 	  },
 
 	  render: function render() {
-	    return _react2.default.createElement(
-	      'div',
-	      { className: 'GameContainer' },
-	      _react2.default.createElement(_Board2.default, {
-	        playedTiles: this.state.playedTiles,
-	        playerTiles: this.state.playerTiles,
-	        tentativelyPlayedTiles: this.state.tentativelyPlayedTiles,
-	        onBoardCellClicked: this.handleBoardCellClicked,
-	        multiplierTiles: this.state.multiplierTiles
-	      }),
-	      _react2.default.createElement(_ErrorContainer2.default, { error: this.state.error }),
-	      _react2.default.createElement(_ScoreDisplay2.default, { score: this.state.playerScore }),
-	      _react2.default.createElement(_TileRack2.default, {
-	        selectedTileId: this.state.selectedTileId,
-	        playerTiles: this.state.playerTiles,
-	        tentativelyPlayedTiles: this.state.tentativelyPlayedTiles,
-	        onTileClicked: this.handleTileRackTileClicked
-	      }),
-	      _react2.default.createElement(
-	        'button',
-	        { className: 'action-button', onClick: this.playTiles },
-	        'play'
-	      ),
-	      _react2.default.createElement(
-	        'button',
-	        { className: 'action-button', onClick: this.reset },
-	        'reset'
-	      )
-	    );
+	    if (this.state.gameId) {
+	      return _react2.default.createElement(
+	        'div',
+	        { className: 'GameContainer' },
+	        _react2.default.createElement(_Board2.default, {
+	          playedTiles: this.state.playedTiles,
+	          playerTiles: this.state.playerTiles,
+	          tentativelyPlayedTiles: this.state.tentativelyPlayedTiles,
+	          onBoardCellClicked: this.handleBoardCellClicked,
+	          multiplierTiles: this.state.multiplierTiles
+	        }),
+	        _react2.default.createElement(_ErrorContainer2.default, { error: this.state.error }),
+	        _react2.default.createElement(_ScoreDisplay2.default, { score: this.state.playerScore }),
+	        _react2.default.createElement(_TileRack2.default, {
+	          selectedTileId: this.state.selectedTileId,
+	          playerTiles: this.state.playerTiles,
+	          tentativelyPlayedTiles: this.state.tentativelyPlayedTiles,
+	          onTileClicked: this.handleTileRackTileClicked
+	        }),
+	        _react2.default.createElement(
+	          'button',
+	          { className: 'action-button', onClick: this.playTiles },
+	          'play'
+	        ),
+	        _react2.default.createElement(
+	          'button',
+	          { className: 'action-button', onClick: this.reset },
+	          'reset'
+	        )
+	      );
+	    } else {
+	      return _react2.default.createElement(
+	        'div',
+	        { className: 'splashScreen' },
+	        _react2.default.createElement(
+	          'button',
+	          { className: 'action-button splash-button', onClick: this.startNewGame },
+	          'New Game'
+	        )
+	      );
+	    }
 	  }
 	});
 

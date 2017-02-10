@@ -10,6 +10,7 @@ import Board from './Board.jsx'
 const GameContainer = React.createClass({
   getInitialState: function() {
     let initialState = {
+      gameId: null,
       playedTiles: [],
       playerTiles: [],
       playerScore: 0,
@@ -20,7 +21,7 @@ const GameContainer = React.createClass({
     return initialState
   },
 
-  componentDidMount: function() {
+  startNewGame: function() {
     let self = this
     $.post('/games', {}, function(response) {
       self.setState({
@@ -134,31 +135,41 @@ const GameContainer = React.createClass({
   },
 
   render: function() {
-    return (
-      <div className="GameContainer">
-        <Board
-          playedTiles={this.state.playedTiles}
-          playerTiles={this.state.playerTiles}
-          tentativelyPlayedTiles={this.state.tentativelyPlayedTiles}
-          onBoardCellClicked={this.handleBoardCellClicked}
-          multiplierTiles={this.state.multiplierTiles}
-        />
-        <ErrorContainer error={this.state.error} />
-        <ScoreDisplay score={this.state.playerScore} />
-        <TileRack
-          selectedTileId={this.state.selectedTileId}
-          playerTiles={this.state.playerTiles}
-          tentativelyPlayedTiles={this.state.tentativelyPlayedTiles}
-          onTileClicked={this.handleTileRackTileClicked}
-        />
-        <button className="action-button" onClick={this.playTiles}>
-          play
-        </button>
-        <button className="action-button" onClick={this.reset}>
-          reset
-        </button>
-      </div>
-    )
+    if ( this.state.gameId ) {
+      return (
+        <div className="GameContainer">
+          <Board
+            playedTiles={this.state.playedTiles}
+            playerTiles={this.state.playerTiles}
+            tentativelyPlayedTiles={this.state.tentativelyPlayedTiles}
+            onBoardCellClicked={this.handleBoardCellClicked}
+            multiplierTiles={this.state.multiplierTiles}
+          />
+          <ErrorContainer error={this.state.error} />
+          <ScoreDisplay score={this.state.playerScore} />
+          <TileRack
+            selectedTileId={this.state.selectedTileId}
+            playerTiles={this.state.playerTiles}
+            tentativelyPlayedTiles={this.state.tentativelyPlayedTiles}
+            onTileClicked={this.handleTileRackTileClicked}
+          />
+          <button className="action-button" onClick={this.playTiles}>
+            play
+          </button>
+          <button className="action-button" onClick={this.reset}>
+            reset
+          </button>
+        </div>
+      )
+    } else {
+      return (
+        <div className="splashScreen">
+          <button className="action-button splash-button" onClick={this.startNewGame}>
+            new game
+          </button>
+        </div>
+      )
+    }
   },
 })
 
