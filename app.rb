@@ -1,5 +1,6 @@
 require 'sinatra'
 require 'json'
+require_relative './initializers/pusher.rb'
 require_relative './lib/game'
 
 post "/games" do
@@ -7,6 +8,15 @@ post "/games" do
 
   content_type "application/json"
   game.to_hash.to_json
+end
+
+get "/pusher_test" do
+  begin
+    Pusher.trigger('scrabbleChannel', 'testEvent', :thisIs => 'someData')
+  rescue Pusher::Error => e
+    puts "pusher error: #{e.class}: #{e}"
+  end
+  "OK"
 end
 
 get "/games/:game_id" do
