@@ -1,8 +1,8 @@
 import React from 'react'
-import Util from './Util.js'
+import Util from './util.js'
 import * as _ from 'lodash'
-import BoardCell from './BoardCell.jsx'
-import Tile from './Tile.jsx'
+import BoardCell from './board-cell.jsx'
+import Tile from './tile.jsx'
 
 const Board = React.createClass({
   findByPosition(tiles, position) {

@@ -1,11 +1,11 @@
 import * as _ from 'lodash'
 import * as $ from 'jquery'
 import React from 'react'
-import Util from './Util.js'
-import TileRack from './TileRack.jsx'
-import ErrorContainer from './ErrorContainer.jsx'
-import ScoreDisplay from './ScoreDisplay.jsx'
-import Board from './Board.jsx'
+import Util from './util.js'
+import TileRack from './tile-rack.jsx'
+import ErrorContainer from './error-container.jsx'
+import ScoreDisplay from './score-display.jsx'
+import Board from './board.jsx'
 
 const GameContainer = React.createClass({
   getInitialState: function() {
