@@ -4,16 +4,18 @@ class Player
   PLAYER1 = :player1
   PLAYER2 = :player2
 
+  attr_reader :id
   attr_reader :score
   attr_reader :position
   attr_reader :tile_rack
 
   def self.new_player1
     tile_rack = TileRack.new_tile_rack
-    new(PLAYER1, tile_rack, 0)
+    new(random_id, PLAYER1, tile_rack, 0)
   end
 
-  def initialize(position, tile_rack, score)
+  def initialize(player_id, position, tile_rack, score)
+    @id = player_id
     @position = position
     @tile_rack = tile_rack
     @score = 0
@@ -25,7 +27,7 @@ class Player
 
   def copy
     tile_rack_copy = tile_rack.copy
-    Player.new(position, tile_rack_copy, score)
+    Player.new(id, position, tile_rack_copy, score)
   end
 
   def take_tile!(tile_id)
@@ -42,6 +44,7 @@ class Player
 
   def to_hash
     {
+      "id" => id,
       "tileRack" => tile_rack.to_hash,
       "position" => position,
       "score" => score
@@ -52,6 +55,13 @@ class Player
     tile_rack = TileRack.from_hash(h.fetch("tileRack"))
     position = h.fetch("position").to_sym
     score = h.fetch("score")
-    new(position, tile_rack, score)
+    id = h.fetch("id")
+    new(id, position, tile_rack, score)
+  end
+
+  private
+
+  def self.random_id
+    SecureRandom.uuid
   end
 end

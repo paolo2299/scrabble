@@ -10,12 +10,15 @@ import Board from './board.jsx'
 const GameContainer = React.createClass({
   getInitialState: function() {
     let initialState = {
+      gameId: null,
+      playerId: null,
       playedTiles: [],
       playerTiles: [],
       playerScore: 0,
       selectedTileId: null,
       tentativelyPlayedTiles: [],
       multiplierTiles: {},
+      error: null,
     }
     return initialState
   },
@@ -25,12 +28,13 @@ const GameContainer = React.createClass({
     $.post('/games', {}, function(response) {
       self.setState({
         gameId: response.id,
+        playerId: response.player.id,
         playedTiles: response.board.playedTiles,
-        multiplierTiles: response.board.multiplierTiles,
         playerTiles: response.player.tileRack.tiles,
         playerScore: response.player.score,
         selectedTileId: null,
         tentativelyPlayedTiles: [],
+        multiplierTiles: response.board.multiplierTiles,
         error: null,
       })
     })

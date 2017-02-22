@@ -8,6 +8,7 @@ require 'game'
 describe Game do
 
   let(:game_id) { "123" }
+  let(:player_id) { "abc" }
 
   let(:board) { Board.new_board }
 
@@ -41,7 +42,7 @@ describe Game do
     rack
   end
 
-  let(:player) { Player.new(Player::PLAYER1, tile_rack, 0) }
+  let(:player) { Player.new(player_id, Player::PLAYER1, tile_rack, 0) }
 
   subject { Game.new(game_id, board, tile_bag, player) }
 
