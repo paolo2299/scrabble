@@ -6,22 +6,39 @@ require_relative './player'
 require_relative './dictionary'
 
 class Game
-  class GameNotFoundError < StandardError; end;
-
   #TODO use a database instead of file storage
   SAVE_FOLDER = "./data/saves"
+  PLAYER_1_INDEX = 0
 
-  attr_reader :player
+  class GameStatus
+    WAITING_FOR_PLAYERS = :waiting_for_players
+    IN_PROGRESS = :in_progress
+    COMPLETE = :complete
+  end
+
+  attr_reader :players
   attr_reader :tile_bag
   attr_reader :board
   attr_reader :id
+  attr_reader :total_players
+  attr_reader :status
 
-  def self.new_game
-    board = Board.new_board
-    tile_bag = TileBag.new_tile_bag
-    player1 = Player.new_player1
-    game_id = random_id
-    game = Game.new(game_id, board, tile_bag, player1)
+  def self.new_game(num_players = 1)
+    game_status = if num_players > 1
+      GameStatus::WAITING_FOR_PLAYERS
+    else
+      GameStatus::IN_PROGRESS
+    end
+
+    return Game.new(
+      id: random_id,
+      board: Board.new_board,
+      tile_bag: TileBag.new_tile_bag,
+      players: [Player.new_player1],
+      player_to_act_index: PLAYER_1_INDEX,
+      status: game_status,
+      total_players: num_players
+    )
   end
 
   def self.from_id(game_id)
@@ -41,30 +58,76 @@ class Game
       game_hash = JSON.parse(File.read(filename))
       return Game.from_hash(game_hash)
     end
-    raise GameNotFoundError.new game_id
+    raise GameError::GameNotFoundError.new game_id
   end
 
-  def initialize(game_id, board, tile_bag, player)
-    @id = game_id
-    @board = board
-    @tile_bag = tile_bag
-    @player = player
-    refill_player_tile_rack!
+  def initialize(properties)
+    @id = properties.fetch(:id)
+    @board = properties.fetch(:board)
+    @tile_bag = properties.fetch(:tile_bag)
+    @players = properties.fetch(:players)
+    @player_to_act_index = properties.fetch(:player_to_act_index)
+    @total_players = properties.fetch(:total_players)
+    @status = properties.fetch(:status)
+    refill_tile_racks!
     save!
   end
 
-  def play!(tile_ids, positions)
-    #TODO doesn't really make sense returning score from this method
+  def player_to_act
+    players[@player_to_act_index]
+  end
+
+  def player2_id
+    players[1].id
+  end
+
+  def player1_id
+    players.first.id
+  end
+
+  def add_second_player!
+    unless players.count == 1
+      raise GameError::TooManyPlayersError.new
+    end
+    players << Player.new_player2
+  end
+
+  def player_from_id(player_id)
+    unless player = players.find {|player| player.id == player_id}
+      message = "player_id #{player_id} not valid for game #{id}"
+      raise GameError::PlayerNotFoundError.new(message)
+    end
+    player
+  end
+
+  def play!(player_id, tile_ids, positions)
+    validate_player_to_act!(player_id)
     score = validate_move!(tile_ids, positions)
     play_tiles!(tile_ids, positions)
-    player.add_score!(score)
-    refill_player_tile_rack!
+    player_to_act.add_score!(score)
+    refill_tile_racks!
     board.commit!
     next_players_turn!
     save!
   end
 
-  def pass!
+  def validate_player_to_act!(player_id)
+    unless in_progress?
+      raise GameError::GameNotInProgressError.new
+    end
+    player = player_from_id(player_id)
+    unless player.id == player_to_act.id
+      message = "player #{player_id} attempted to act out of turn"
+      raise GameError::PlayerActedOutOfTurnError.new(message)
+    end
+  end
+
+  def in_progress?
+    status.to_sym == Game::GameStatus::IN_PROGRESS
+  end
+
+  def pass!(player_id)
+    validate_player_to_act!(player_id)
     next_players_turn!
     save!
   end
@@ -72,18 +135,47 @@ class Game
   def to_hash
     {
       "id" => id,
+      "players" => players.map(&:to_hash),
+      "board" => board.to_hash,
+      "tileBag" => tile_bag.to_hash,
+      "playerToActIndex" => @player_to_act_index,
+      "totalPlayers" => total_players,
+      "status" => status
+    }
+  end
+
+  def to_hash_from_players_perspective(player_id)
+    player = player_from_id(player_id)
+    player_details =
+    {
+      "id" => id,
       "player" => player.to_hash,
       "board" => board.to_hash,
-      "tileBag" => tile_bag.to_hash
+      "playerToAct" => player_to_act.position,
+      "totalPlayers" => total_players,
+      "status" => status,
+      "players" => players.map do |player|
+        {
+          "position" => player.position,
+          "score" => player.score
+        }
+      end
     }
   end
 
   def self.from_hash(h)
-    game_id = h.fetch("id")
-    player = Player.from_hash(h.fetch("player"))
-    board = Board.from_hash(h.fetch("board"))
-    tile_bag = TileBag.from_hash(h.fetch("tileBag"))
-    new(game_id, board, tile_bag, player)
+    players = h.fetch("players").map do |player_hash|
+      Player.from_hash(player_hash)
+    end
+    return new(
+      id: h.fetch("id"),
+      board: Board.from_hash(h.fetch("board")),
+      tile_bag: TileBag.from_hash(h.fetch("tileBag")),
+      players: players,
+      player_to_act_index: h.fetch("playerToActIndex"),
+      status: h.fetch("status"),
+      total_players: h.fetch("totalPlayers")
+    )
   end
 
   private
@@ -93,16 +185,12 @@ class Game
   end
 
   def next_players_turn!
-    #if @current_player == :player1
-    #  @current_player = :player2
-    #else
-    #  @current_player = :player1
-    #end
+    @player_to_act_index = (@player_to_act_index + 1) % players.count
   end
 
   def play_tiles!(tile_ids, positions)
     tile_ids.zip(positions).each do |tile_id, position|
-      tile = player.take_tile!(tile_id)
+      tile = player_to_act.take_tile!(tile_id)
       board.place_tile!(
         tile,
         position
@@ -118,7 +206,7 @@ class Game
     first_move = board.empty?
     if first_move
       unless positions.include?(board.center)
-        raise InvalidMove::FirstMoveNotOnCenterError.new
+        raise InvalidMoveError::FirstMoveNotOnCenterError.new
       end
     end
 
@@ -126,7 +214,7 @@ class Game
     cols = positions.map{|p| p[0]}.uniq
     rows = positions.map{|p| p[1]}.uniq
     unless (cols.size == 1) || (rows.size == 1)
-      raise InvalidMove::NotInSameRowOrSameColumnError.new
+      raise InvalidMoveError::NotInSameRowOrSameColumnError.new
     end
 
     #any gap in the played tiles must be filled by other tiles on the board
@@ -142,14 +230,14 @@ class Game
                  when :cols then [gap, rows[0]]
                  end
       if board.tile(position).nil?
-        raise InvalidMove::GapError.new
+        raise InvalidMoveError::GapError.new
       end
     end
 
     #validate all new words are real words and that the player has the
     #specified tiles
     board_copy = board.copy
-    player_copy = player.copy
+    player_copy = player_to_act.copy
     tile_ids.zip(positions).each do |tile_id, position|
       tile = player_copy.take_tile!(tile_id)
       board_copy.place_tile!(
@@ -161,7 +249,7 @@ class Game
     invalid_words = new_played_words.reject{|w| valid_word?(w.to_s)}
     if invalid_words.any?
       data = {type: :invalid_word, invalid_words: invalid_words.map(&:to_s)}
-      raise InvalidMove::InvalidWordError.new("invalid words", data)
+      raise InvalidMoveError::InvalidWordError.new("invalid words", data)
     end
 
     unless first_move
@@ -169,7 +257,7 @@ class Game
         board.has_adjacent_tiles?(position)
       end
       unless built_on_existing_words
-        raise InvalidMove::DidNotBuildOnExistingWordsError.new
+        raise InvalidMoveError::DidNotBuildOnExistingWordsError.new
       end
     end
 
@@ -177,8 +265,8 @@ class Game
     return score
   end
 
-  def refill_player_tile_rack!
-    player.fill_tile_rack!(tile_bag)
+  def refill_tile_racks!
+    players.each { |player| player.fill_tile_rack!(tile_bag) }
   end
 end
 

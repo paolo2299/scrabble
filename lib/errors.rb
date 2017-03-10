@@ -1,22 +1,32 @@
-class InvalidMove < StandardError
+class ScrabbleError < StandardError
+  attr_reader :data
+
   def initialize(message="", data={})
     @message = message
     @data = data
   end
 
-  def data
-    @data.merge({
-      type: name
-    })
+  def error_type
+    self.class.name.split("::").first
   end
 
-  def name
+  def error_sub_type
     self.class.name.split("::").last
   end
+end
 
-  class FirstMoveNotOnCenterError < InvalidMove; end;
-  class InvalidWordError < InvalidMove; end;
-  class NotInSameRowOrSameColumnError < InvalidMove; end;
-  class GapError < InvalidMove; end;
-  class DidNotBuildOnExistingWordsError < InvalidMove; end;
+class InvalidMoveError < ScrabbleError
+  class FirstMoveNotOnCenterError < InvalidMoveError; end;
+  class InvalidWordError < InvalidMoveError; end;
+  class NotInSameRowOrSameColumnError < InvalidMoveError; end;
+  class GapError < InvalidMoveError; end;
+  class DidNotBuildOnExistingWordsError < InvalidMoveError; end;
+end
+
+class GameError < ScrabbleError
+  class GameNotFoundError < GameError; end;
+  class TooManyPlayersError < GameError; end;
+  class PlayerNotFoundError < GameError; end;
+  class PlayerActedOutOfTurnError < GameError; end;
+  class GameNotInProgressError < GameError; end;
 end

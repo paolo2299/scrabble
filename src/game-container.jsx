@@ -72,9 +72,13 @@ const GameContainer = React.createClass({
   },
 
   errorMessageFromError: function(error) {
-    let errMessage = 'Invalid move.'
-    let errType = error.error_data.type
-    switch (errType) {
+    let errMessage = 'Something went wrong. Please try again.'
+    let errType = error.errorType
+    if (errType !== 'InvalidMoveError') {
+      return errMessage
+    }
+    let errSubType = error.errorSubType
+    switch (errSubType) {
       case 'FirstMoveNotOnCenterError':
         errMessage = 'The first word placed on the board ' +
                        'needs to cross the center square.'
@@ -108,6 +112,7 @@ const GameContainer = React.createClass({
   playTiles: function() {
     let self = this
     let postData = {
+      playerId: this.state.playerId,
       playedTiles: this.state.tentativelyPlayedTiles,
     }
     $.ajax({

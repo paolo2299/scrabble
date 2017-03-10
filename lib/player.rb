@@ -14,6 +14,11 @@ class Player
     new(random_id, PLAYER1, tile_rack, 0)
   end
 
+  def self.new_player2
+    tile_rack = TileRack.new_tile_rack
+    new(random_id, PLAYER2, tile_rack, 0)
+  end
+
   def initialize(player_id, position, tile_rack, score)
     @id = player_id
     @position = position

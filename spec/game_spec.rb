@@ -8,7 +8,12 @@ require 'game'
 describe Game do
 
   let(:game_id) { "123" }
-  let(:player_id) { "abc" }
+  let(:player1_id) { "abc" }
+  let(:player2_id) { "def" }
+  let(:player1_score) { 0 }
+  let(:player2_score) { 0 }
+  let(:player1_index) { 0 }
+  let(:player2_index) { 1 }
 
   let(:board) { Board.new_board }
 
@@ -42,41 +47,39 @@ describe Game do
     rack
   end
 
-  let(:player) { Player.new(player_id, Player::PLAYER1, tile_rack, 0) }
+  let(:players) { [
+    Player.new(player1_id, Player::PLAYER1, tile_rack, player1_score)
+  ] }
 
-  subject { Game.new(game_id, board, tile_bag, player) }
+  let(:player_to_act_index) { player1_index }
+  let(:total_players) { 1 }
+
+  let(:game_status) { Game::GameStatus::IN_PROGRESS }
+
+  subject { Game.new(
+    id: game_id,
+    board: board,
+    tile_bag: tile_bag,
+    players: players,
+    player_to_act_index: player_to_act_index,
+    total_players: total_players,
+    status: game_status
+  )}
 
   describe "play!" do
-    context "when the current player is player1" do
-      it "should cause the current player to be player2" do
-        pending("introduction of 2 player games")
-        tile_ids = [
-          c1.id,
-          a.id,
-          t.id
-        ]
-        positions = [
-          [7, 5],
-          [7, 6],
-          [7, 7]
-        ]
-        subject.play!(tile_ids, positions)
-        expect(subject.to_hash.fetch(:player)).to eq(:player2)
-      end
-    end
-
-    context "when the current player is player2" do
-      subject { Game.new(board, tile_bag, :player2) }
-
-      it "should cause the current player to be player1" do
-        pending("introduction of 2 player games")
-        tiles = [
-          PositionedTile.new(tile("c"), [7, 5]),
-          PositionedTile.new(tile("a"), [7, 6]),
-          PositionedTile.new(tile("t"), [7, 7]),
-        ]
-        subject.play!(tiles)
-        expect(subject.to_hash.fetch(:player)).to eq(:player1)
+    it "should raise an exception when a non-existent player attempts to play" do
+      tile_ids = [
+        c1.id,
+        a.id,
+        t.id
+      ]
+      positions = [
+        [7, 5],
+        [7, 6],
+        [7, 7]
+      ]
+      expect { subject.play!("blah", tile_ids, positions) }.to raise_error do |error|
+        expect(error).to be_a(GameError::PlayerNotFoundError)
       end
     end
 
@@ -92,7 +95,7 @@ describe Game do
           [7, 6],
           [7, 7]
         ]
-        subject.play!(tile_ids, positions)
+        subject.play!(player1_id, tile_ids, positions)
         expect(subject.board.to_s).to eq(%Q{
 ---------------
 ---------------
@@ -123,8 +126,8 @@ describe Game do
           [6, 6],
           [6, 7]
         ]
-        expect { subject.play!(tile_ids, positions) }.to raise_error do |error|
-          expect(error).to be_a(InvalidMove::FirstMoveNotOnCenterError)
+        expect { subject.play!(player1_id, tile_ids, positions) }.to raise_error do |error|
+          expect(error).to be_a(InvalidMoveError::FirstMoveNotOnCenterError)
         end
         expect(subject.board).to be_empty
       end
@@ -140,8 +143,8 @@ describe Game do
           [7, 6],
           [7, 7]
         ]
-        expect { subject.play!(tile_ids, positions) }.to raise_error do |error|
-          expect(error).to be_a(InvalidMove::NotInSameRowOrSameColumnError)
+        expect { subject.play!(player1_id, tile_ids, positions) }.to raise_error do |error|
+          expect(error).to be_a(InvalidMoveError::NotInSameRowOrSameColumnError)
         end
         expect(subject.board).to be_empty
       end
@@ -161,8 +164,8 @@ describe Game do
           [7, 9],
           [7, 10]
         ]
-        expect { subject.play!(tile_ids, positions) }.to raise_error do |error|
-          expect(error).to be_a(InvalidMove::GapError)
+        expect { subject.play!(player1_id, tile_ids, positions) }.to raise_error do |error|
+          expect(error).to be_a(InvalidMoveError::GapError)
         end
         expect(subject.board).to be_empty
       end
@@ -178,10 +181,30 @@ describe Game do
           [7, 6],
           [7, 7]
         ]
-        expect { subject.play!(tile_ids, positions) }.to raise_error do |error|
-          expect(error).to be_a(InvalidMove::InvalidWordError)
+        expect { subject.play!(player1_id, tile_ids, positions) }.to raise_error do |error|
+          expect(error).to be_a(InvalidMoveError::InvalidWordError)
         end
         expect(subject.board).to be_empty
+      end
+    end
+
+    context "when the game has not started" do
+      let(:game_status) { Game::GameStatus::WAITING_FOR_PLAYERS }
+
+      it "should raise an exception" do
+        tile_ids = [
+          c1.id,
+          a.id,
+          t.id
+        ]
+        positions = [
+          [7, 5],
+          [7, 6],
+          [7, 7]
+        ]
+        expect { subject.play!(player1_id, tile_ids, positions) }.to raise_error do |error|
+          expect(error).to be_a(GameError::GameNotInProgressError)
+        end
       end
     end
 
@@ -227,6 +250,54 @@ describe Game do
         }, tile_bag)
       end
 
+      it "should allow a legitimate word to be played" do
+        tile_ids = [
+          p.id,
+          t.id
+        ]
+        positions = [
+          [3, 5],
+          [3, 7]
+        ]
+        subject.play!(player1_id, tile_ids, positions)
+        expected = %Q{
+---------------
+---------------
+---------------
+---------------
+-------C-------
+---P---A-------
+--PARROT-------
+---T-----------
+---------------
+---------------
+---------------
+---------------
+---------------
+---------------
+---------------
+        }.strip
+        expect(subject.board.to_s).to eq(expected)
+      end
+
+      context "when the game is complete" do
+        let(:game_status) { Game::GameStatus::COMPLETE }
+
+        it "should raise an exception if a player tries to play" do
+          tile_ids = [
+            p.id,
+            t.id
+          ]
+          positions = [
+            [3, 5],
+            [3, 7]
+          ]
+          expect { subject.play!(player1_id, tile_ids, positions) }.to raise_error do |error|
+            expect(error).to be_a(GameError::GameNotInProgressError)
+          end
+        end
+      end
+
       it "should raise a relevant exception if the tiles are not all in the same row or same column" do
         tile_ids = [
           p.id,
@@ -242,8 +313,8 @@ describe Game do
           [3, 9],
           [4, 10]
         ]
-        expect { subject.play!(tile_ids, positions) }.to raise_error do |error|
-          expect(error).to be_a(InvalidMove::NotInSameRowOrSameColumnError)
+        expect { subject.play!(player1_id, tile_ids, positions) }.to raise_error do |error|
+          expect(error).to be_a(InvalidMoveError::NotInSameRowOrSameColumnError)
         end
       end
 
@@ -262,8 +333,8 @@ describe Game do
           [3, 9],
           [3, 11]
         ]
-        expect { subject.play!(tile_ids, positions) }.to raise_error do |error|
-          expect(error).to be_a(InvalidMove::GapError)
+        expect { subject.play!(player1_id, tile_ids, positions) }.to raise_error do |error|
+          expect(error).to be_a(InvalidMoveError::GapError)
         end
       end
 
@@ -281,8 +352,8 @@ describe Game do
           [6, 5],
           [6, 7]
         ]
-        expect { subject.play!(tile_ids, positions) }.to raise_error do |error|
-          expect(error).to be_a(InvalidMove::InvalidWordError)
+        expect { subject.play!(player1_id, tile_ids, positions) }.to raise_error do |error|
+          expect(error).to be_a(InvalidMoveError::InvalidWordError)
         end
       end
 
@@ -297,29 +368,153 @@ describe Game do
           [0, 2],
           [0, 3]
         ]
-        expect { subject.play!(tile_ids, positions) }.to raise_error do |error|
-          expect(error).to be_a(InvalidMove::DidNotBuildOnExistingWordsError)
+        expect { subject.play!(player1_id, tile_ids, positions) }.to raise_error do |error|
+          expect(error).to be_a(InvalidMoveError::DidNotBuildOnExistingWordsError)
+        end
+      end
+    end
+
+    context "for a two player game" do
+      let(:players) { [
+        Player.new(player1_id, Player::PLAYER1, tile_rack, player1_score),
+        Player.new(player2_id, Player::PLAYER2, tile_rack, player2_score)
+      ] }
+      let(:total_players) { 2 }
+
+      context "when the current player is player1" do
+        let(:player_to_act_index) { player1_index }
+
+        it "should raise an exception when player2 tries to play" do
+          tile_ids = [
+            c1.id,
+            a.id,
+            t.id
+          ]
+          positions = [
+            [7, 5],
+            [7, 6],
+            [7, 7]
+          ]
+          expect { subject.play!(player2_id, tile_ids, positions) }.to raise_error do |error|
+            expect(error).to be_a(GameError::PlayerActedOutOfTurnError)
+          end
+        end
+
+        it "should cause the player to act to be player2" do
+          tile_ids = [
+            c1.id,
+            a.id,
+            t.id
+          ]
+          positions = [
+            [7, 5],
+            [7, 6],
+            [7, 7]
+          ]
+          subject.play!(player1_id, tile_ids, positions)
+          expect(subject.player_to_act.position).to eq(:player2)
+        end
+      end
+
+      context "the current player is player2" do
+        let(:player_to_act_index) { player2_index }
+
+        it "should raise an exception when player1 tries to play" do
+          tile_ids = [
+            c1.id,
+            a.id,
+            t.id
+          ]
+          positions = [
+            [7, 5],
+            [7, 6],
+            [7, 7]
+          ]
+          expect { subject.play!(player1_id, tile_ids, positions) }.to raise_error do |error|
+            expect(error).to be_a(GameError::PlayerActedOutOfTurnError)
+          end
+        end
+
+        it "should cause the current player to be player1" do
+          tile_ids = [
+            c1.id,
+            a.id,
+            t.id
+          ]
+          positions = [
+            [7, 5],
+            [7, 6],
+            [7, 7]
+          ]
+          subject.play!(player2_id, tile_ids, positions)
+          expect(subject.player_to_act.position).to eq(:player1)
         end
       end
     end
   end
 
   describe "pass!" do
-    context "when the current player is player1" do
-      it "should cause the current player to be player2" do
-        pending("introduction of 2 player games")
-        subject.pass!
-        expect(subject.to_hash.fetch(:player)).to eq(:player2)
+    it "should raise an exception when a non-existent player attempts to pass" do
+      expect { subject.pass!("skdjfklsd") }.to raise_error do |error|
+        expect(error).to be_a(GameError::PlayerNotFoundError)
       end
     end
 
-    context "when the current player is player2" do
-      subject { Game.new(board, tile_bag, :player2) }
+    context "when the game has not started" do
+      let(:game_status) { Game::GameStatus::WAITING_FOR_PLAYERS }
 
-      it "should cause the current player to be player1" do
-        pending("introduction of 2 player games")
-        subject.pass!
-        expect(subject.to_hash.fetch(:player)).to eq(:player1)
+      it "should raise an exception" do
+        expect { subject.pass!(player1_id) }.to raise_error do |error|
+          expect(error).to be_a(GameError::GameNotInProgressError)
+        end
+      end
+    end
+
+    context "when the game is complete" do
+      let(:game_status) { Game::GameStatus::COMPLETE }
+
+      it "should raise an exception" do
+        expect { subject.pass!(player1_id) }.to raise_error do |error|
+          expect(error).to be_a(GameError::GameNotInProgressError)
+        end
+      end
+    end
+
+    context "for a two player game" do
+      let(:players) { [
+        Player.new(player1_id, Player::PLAYER1, tile_rack, player1_score),
+        Player.new(player2_id, Player::PLAYER2, tile_rack, player2_score)
+      ] }
+      let(:total_players) { 2 }
+
+      context "when the current player is player1" do
+        let(:player_to_act_index) { player1_index }
+
+        it "should cause the current player to be player2" do
+          subject.pass!(player1_id)
+          expect(subject.player_to_act.position).to eq(:player2)
+        end
+
+        it "should raise an exception when player2 attempts to pass" do
+          expect { subject.pass!(player2_id) }.to raise_error do |error|
+            expect(error).to be_a(GameError::PlayerActedOutOfTurnError)
+          end
+        end
+      end
+
+      context "when the current player is player2" do
+        let(:player_to_act_index) { player2_index }
+
+        it "should cause the current player to be player1" do
+          subject.pass!(player2_id)
+          expect(subject.player_to_act.position).to eq(:player1)
+        end
+
+        it "should raise an exception when player1 attempts to pass" do
+          expect { subject.pass!(player1_id) }.to raise_error do |error|
+            expect(error).to be_a(GameError::PlayerActedOutOfTurnError)
+          end
+        end
       end
     end
   end

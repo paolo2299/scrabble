@@ -21577,9 +21577,13 @@
 	  },
 
 	  errorMessageFromError: function errorMessageFromError(error) {
-	    var errMessage = 'Invalid move.';
-	    var errType = error.error_data.type;
-	    switch (errType) {
+	    var errMessage = 'Something went wrong. Please try again.';
+	    var errType = error.errorType;
+	    if (errType !== 'InvalidMoveError') {
+	      return errMessage;
+	    }
+	    var errSubType = error.errorSubType;
+	    switch (errSubType) {
 	      case 'FirstMoveNotOnCenterError':
 	        errMessage = 'The first word placed on the board ' + 'needs to cross the center square.';
 	        break;
@@ -21611,6 +21615,7 @@
 	  playTiles: function playTiles() {
 	    var self = this;
 	    var postData = {
+	      playerId: this.state.playerId,
 	      playedTiles: this.state.tentativelyPlayedTiles
 	    };
 	    $.ajax({
