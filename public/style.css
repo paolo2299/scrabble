@@ -90,10 +90,21 @@
   display: block;
 }
 
-.action-button {
+button {
   font-size: 20px;
+}
+
+.action-button {
   margin-left: 20px;
   width: 120px;
+}
+
+.menu-button {
+  width: 300px;
+}
+
+.menu-section {
+  margin-top: 30px;
 }
 
 .BoardCell {

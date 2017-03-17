@@ -2,6 +2,7 @@ import * as _ from 'lodash'
 import * as $ from 'jquery'
 import React from 'react'
 import Util from './util.js'
+import MenuScreen from './menu-screen.jsx'
 import TileRack from './tile-rack.jsx'
 import ErrorContainer from './error-container.jsx'
 import ScoreDisplay from './score-display.jsx'
@@ -25,6 +26,7 @@ const GameContainer = React.createClass({
 
   startNewGame: function(numPlayers) {
     let self = this
+    //TODO error handling
     $.post('/games', {}, function(response) {
       self.setState({
         gameId: response.id,
@@ -40,8 +42,22 @@ const GameContainer = React.createClass({
     })
   },
 
-  startNewSolitaireGame: function() {
-    this.startNewGame(1)
+  joinExistingGame: function(gameId) {
+    let self = this
+    //TODO error handling
+    $.post('/games/' + gameId + '/players', {}, function(response) {
+      self.setState({
+        gameId: response.id,
+        playerId: response.player.id,
+        playedTiles: response.board.playedTiles,
+        playerTiles: response.player.tileRack.tiles,
+        playerScore: response.player.score,
+        selectedTileId: null,
+        tentativelyPlayedTiles: [],
+        multiplierTiles: response.board.multiplierTiles,
+        error: null,
+      })
+    })
   },
 
   findByPosition: function(tiles, position) {
@@ -175,13 +191,10 @@ const GameContainer = React.createClass({
       )
     } else {
       return (
-        <div className="splashScreen">
-          <button
-            className="action-button splash-button"
-            onClick={this.startNewSolitaireGame} >
-            new game
-          </button>
-        </div>
+        <MenuScreen
+          startNewGame={this.startNewGame}
+          joinExistingGame={this.joinExistingGame}
+        />
       )
     }
   },
