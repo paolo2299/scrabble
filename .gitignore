@@ -1,3 +1,4 @@
 Gemfile.lock
 data/saves/*
 !data/saves/.gitkeep
+public/bundle.js
