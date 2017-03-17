@@ -85,11 +85,18 @@ class Game
     players.first.id
   end
 
+  def start_game!
+    @status = GameStatus::IN_PROGRESS
+  end
+
   def add_second_player!
     unless players.count == 1
       raise GameError::TooManyPlayersError.new
     end
     players << Player.new_player2
+    if players.count == total_players
+      start_game!
+    end
   end
 
   def player_from_id(player_id)
