@@ -34,7 +34,7 @@ get "/pusher_test" do
 end
 
 get "/games/:game_id" do
-  game = Game.from_id(params["gameId"])
+  game = Game.from_id(params["game_id"])
   player_id = params["playerId"]
 
   content_type "application/json"

@@ -28,17 +28,21 @@ const GameContainer = React.createClass({
     let self = this
     //TODO error handling
     $.post('/games', {numPlayers: numPlayers}, function(response) {
-      self.setState({
-        gameId: response.id,
-        playerId: response.player.id,
-        playedTiles: response.board.playedTiles,
-        playerTiles: response.player.tileRack.tiles,
-        playerScore: response.player.score,
-        selectedTileId: null,
-        tentativelyPlayedTiles: [],
-        multiplierTiles: response.board.multiplierTiles,
-        error: null,
-      })
+      self.setStateFromServerResponse(response)
+    })
+  },
+
+  setStateFromServerResponse: function(response) {
+    this.setState({
+      gameId: response.id,
+      playerId: response.player.id,
+      playedTiles: response.board.playedTiles,
+      playerTiles: response.player.tileRack.tiles,
+      playerScore: response.player.score,
+      selectedTileId: null,
+      tentativelyPlayedTiles: [],
+      multiplierTiles: response.board.multiplierTiles,
+      error: null,
     })
   },
 
@@ -129,6 +133,14 @@ const GameContainer = React.createClass({
     })
   },
 
+  refresh: function() {
+    let self = this
+    //TODO error handling
+    $.get('/games/' + self.state.gameId, {playerId: self.state.playerId}, function(response) {
+      self.setStateFromServerResponse(response)
+    })
+  },
+
   playTiles: function() {
     let self = this
     let postData = {
@@ -181,11 +193,15 @@ const GameContainer = React.createClass({
             tentativelyPlayedTiles={this.state.tentativelyPlayedTiles}
             onTileClicked={this.handleTileRackTileClicked}
           />
+        <div>Game ID: {this.state.gameId}</div>
           <button className="action-button" onClick={this.playTiles}>
             play
           </button>
           <button className="action-button" onClick={this.reset}>
             reset
+          </button>
+          <button className="action-button" onClick={this.refresh}>
+            refresh
           </button>
         </div>
       )
