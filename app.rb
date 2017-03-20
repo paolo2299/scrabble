@@ -4,14 +4,15 @@ require_relative './initializers/pusher.rb'
 require_relative './lib/game'
 
 post "/games" do
-  game = Game.new_game
+  num_players = Integer(params["numPlayers"])
+  game = Game.new_game(num_players)
 
   content_type "application/json"
   game.to_hash_from_players_perspective(game.player1_id).to_json
 end
 
 post "/games/:game_id/players" do
-  game = Game.from_id(params["gameId"])
+  game = Game.from_id(params["game_id"])
   begin
     game.add_second_player!
   rescue ScrabbleError => e

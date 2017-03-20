@@ -23,7 +23,7 @@ class Game
   attr_reader :total_players
   attr_reader :status
 
-  def self.new_game(num_players = 1)
+  def self.new_game(num_players)
     game_status = if num_players > 1
       GameStatus::WAITING_FOR_PLAYERS
     else
@@ -85,18 +85,17 @@ class Game
     players.first.id
   end
 
-  def start_game!
-    @status = GameStatus::IN_PROGRESS
-  end
-
   def add_second_player!
     unless players.count == 1
       raise GameError::TooManyPlayersError.new
     end
-    players << Player.new_player2
+    player2 = Player.new_player2
+    players << player2
+    player2.fill_tile_rack!(tile_bag)
     if players.count == total_players
       start_game!
     end
+    save!
   end
 
   def player_from_id(player_id)
@@ -186,6 +185,10 @@ class Game
   end
 
   private
+
+  def start_game!
+    @status = GameStatus::IN_PROGRESS
+  end
 
   def self.random_id
     SecureRandom.uuid

@@ -38,7 +38,7 @@ const MenuScreen = React.createClass({
         <div className="menu-section">
           <button
             className="menu-button"
-            onClick={this.startTwoPlayerGame} >
+            onClick={this.startNewTwoPlayerGame} >
             start two player game
           </button>
         </div>

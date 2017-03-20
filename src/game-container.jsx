@@ -27,7 +27,7 @@ const GameContainer = React.createClass({
   startNewGame: function(numPlayers) {
     let self = this
     //TODO error handling
-    $.post('/games', {}, function(response) {
+    $.post('/games', {numPlayers: numPlayers}, function(response) {
       self.setState({
         gameId: response.id,
         playerId: response.player.id,
