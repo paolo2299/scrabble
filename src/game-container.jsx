@@ -28,40 +28,40 @@ const GameContainer = React.createClass({
     let self = this
     //TODO error handling
     $.post('/games', {numPlayers: numPlayers}, function(response) {
-      self.setStateFromServerResponse(response)
+      self.setStateFromServerResponse(response, true)
+      self.pollServerForUpdates()
     })
   },
 
-  setStateFromServerResponse: function(response) {
+  setStateFromServerResponse: function(response, resetPlayerTiles) {
     this.setState({
       gameId: response.id,
       playerId: response.player.id,
       playedTiles: response.board.playedTiles,
       playerTiles: response.player.tileRack.tiles,
       playerScore: response.player.score,
-      selectedTileId: null,
-      tentativelyPlayedTiles: [],
       multiplierTiles: response.board.multiplierTiles,
-      error: null,
     })
+    if(resetPlayerTiles) {
+      this.setState({
+        selectedTileId: null,
+        tentativelyPlayedTiles: [],
+      })
+    }
   },
 
   joinExistingGame: function(gameId) {
     let self = this
     //TODO error handling
     $.post('/games/' + gameId + '/players', {}, function(response) {
-      self.setState({
-        gameId: response.id,
-        playerId: response.player.id,
-        playedTiles: response.board.playedTiles,
-        playerTiles: response.player.tileRack.tiles,
-        playerScore: response.player.score,
-        selectedTileId: null,
-        tentativelyPlayedTiles: [],
-        multiplierTiles: response.board.multiplierTiles,
-        error: null,
-      })
+      self.setStateFromServerResponse(response, true)
+      self.pollServerForUpdates()
     })
+  },
+
+  pollServerForUpdates: function() {
+    // TODO handle polling in separate class, and ensure only one poller is running at a time
+    setInterval(this.refreshGameState, 10000)
   },
 
   findByPosition: function(tiles, position) {
@@ -133,11 +133,14 @@ const GameContainer = React.createClass({
     })
   },
 
-  refresh: function() {
+  refreshGameState: function() {
+    if (!this.state.gameId) {
+      return
+    }
     let self = this
     //TODO error handling
     $.get('/games/' + self.state.gameId, {playerId: self.state.playerId}, function(response) {
-      self.setStateFromServerResponse(response)
+      self.setStateFromServerResponse(response, false)
     })
   },
 
@@ -154,14 +157,7 @@ const GameContainer = React.createClass({
       contentType: 'application/json; charset=utf-8',
       dataType: 'json',
       success: function(data) {
-        self.setState({
-          playedTiles: data.board.playedTiles,
-          playerTiles: data.player.tileRack.tiles,
-          playerScore: data.player.score,
-          selectedTileId: null,
-          tentativelyPlayedTiles: [],
-          error: null,
-        })
+        self.setStateFromServerResponse(response, true)
       },
       error: function(data) {
         // TODO handle unexpected error too
@@ -199,9 +195,6 @@ const GameContainer = React.createClass({
           </button>
           <button className="action-button" onClick={this.reset}>
             reset
-          </button>
-          <button className="action-button" onClick={this.refresh}>
-            refresh
           </button>
         </div>
       )
