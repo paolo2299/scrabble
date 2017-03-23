@@ -23,7 +23,7 @@ class Player
     @id = player_id
     @position = position
     @tile_rack = tile_rack
-    @score = 0
+    @score = score
   end
 
   def add_score!(score_to_add)
