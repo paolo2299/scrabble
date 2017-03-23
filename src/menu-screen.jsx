@@ -3,7 +3,7 @@ import React from 'react'
 const MenuScreen = React.createClass({
   getInitialState: function() {
     let initialState = {
-      gameCode: this.props.initalGameCode
+      gameCode: this.props.initalGameCode,
     }
     return initialState
   },
@@ -21,11 +21,11 @@ const MenuScreen = React.createClass({
   },
 
   joinTwoPlayerGame: function() {
-    //TODO handle the case where gameCode is empty or clearly incorrect
+    // TODO handle the case where gameCode is empty or clearly incorrect
     this.props.joinExistingGame(this.state.gameCode)
   },
 
-  render: function(){
+  render: function() {
     return (
       <div className="MenuScreen">
         <div className="menu-section">
@@ -57,7 +57,7 @@ const MenuScreen = React.createClass({
         </div>
       </div>
     )
-  }
+  },
 })
 
 export default MenuScreen

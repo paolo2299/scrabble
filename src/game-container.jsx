@@ -27,7 +27,7 @@ const GameContainer = React.createClass({
 
   startNewGame: function(numPlayers) {
     let self = this
-    //TODO error handling
+    // TODO error handling
     $.post('/games', {numPlayers: numPlayers}, function(response) {
       self.setStateFromServerResponse(response, true)
       self.pollServerForUpdates()
@@ -46,7 +46,7 @@ const GameContainer = React.createClass({
       playerToActPosition: response.playerToAct,
       multiplierTiles: response.board.multiplierTiles,
     })
-    if(resetPlayerTiles) {
+    if (resetPlayerTiles) {
       this.setState({
         selectedTileId: null,
         tentativelyPlayedTiles: [],
@@ -56,7 +56,7 @@ const GameContainer = React.createClass({
 
   joinExistingGame: function(gameId) {
     let self = this
-    //TODO error handling
+    // TODO error handling
     $.post('/games/' + gameId + '/players', {}, function(response) {
       self.setStateFromServerResponse(response, true)
       self.pollServerForUpdates()
@@ -64,7 +64,8 @@ const GameContainer = React.createClass({
   },
 
   pollServerForUpdates: function() {
-    // TODO handle polling in separate class, and ensure only one poller is running at a time
+    // TODO handle polling in separate class, and ensure
+    // only one poller is running at a time
     setInterval(this.refreshGameState, 10000)
   },
 
@@ -142,8 +143,11 @@ const GameContainer = React.createClass({
       return
     }
     let self = this
-    //TODO error handling
-    $.get('/games/' + self.state.gameId, {playerId: self.state.playerId}, function(response) {
+    // TODO error handling
+    $.get(
+      '/games/' + self.state.gameId,
+      {playerId: self.state.playerId},
+      function(response) {
       self.setStateFromServerResponse(response, false)
     })
   },
