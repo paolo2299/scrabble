@@ -7,6 +7,7 @@ import TileRack from './tile-rack.jsx'
 import ErrorContainer from './error-container.jsx'
 import ScoreDisplay from './score-display.jsx'
 import Board from './board.jsx'
+import GameStateDisplay from './game-state-display.jsx'
 
 const GameContainer = React.createClass({
   getInitialState: function() {
@@ -36,10 +37,13 @@ const GameContainer = React.createClass({
   setStateFromServerResponse: function(response, resetPlayerTiles) {
     this.setState({
       gameId: response.id,
+      gameStatus: response.status,
       playerId: response.player.id,
       playedTiles: response.board.playedTiles,
       playerTiles: response.player.tileRack.tiles,
       playerScore: response.player.score,
+      playerPosition: response.player.position,
+      playerToActPosition: response.playerToAct,
       multiplierTiles: response.board.multiplierTiles,
     })
     if(resetPlayerTiles) {
@@ -183,13 +187,18 @@ const GameContainer = React.createClass({
           />
           <ErrorContainer error={this.state.error} />
           <ScoreDisplay score={this.state.playerScore} />
+          <GameStateDisplay
+            gameId={this.state.gameId}
+            gameStatus={this.state.gameStatus}
+            playerPosition={this.state.playerPosition}
+            playerToActPosition={this.state.playerToActPosition}
+          />
           <TileRack
             selectedTileId={this.state.selectedTileId}
             playerTiles={this.state.playerTiles}
             tentativelyPlayedTiles={this.state.tentativelyPlayedTiles}
             onTileClicked={this.handleTileRackTileClicked}
           />
-        <div>Game ID: {this.state.gameId}</div>
           <button className="action-button" onClick={this.playTiles}>
             play
           </button>
