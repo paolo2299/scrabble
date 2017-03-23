@@ -156,7 +156,7 @@ const GameContainer = React.createClass({
       data: JSON.stringify(postData),
       contentType: 'application/json; charset=utf-8',
       dataType: 'json',
-      success: function(data) {
+      success: function(response) {
         self.setStateFromServerResponse(response, true)
       },
       error: function(data) {
