@@ -113,7 +113,7 @@ const GameContainer = React.createClass({
                        'needs to cross the center square.'
         break
       case 'InvalidWordError':
-        let invalidWord = error.error_data.invalid_words[0]
+        let invalidWord = error.errorData.invalid_words[0]
         errMessage = invalidWord + ' is not a real word.'
         break
       case 'NotInSameRowOrSameColumnError':
