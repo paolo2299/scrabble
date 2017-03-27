@@ -47,7 +47,7 @@ const GameContainer = React.createClass({
       playerTiles: response.player.tileRack.tiles,
       playerScore: response.player.score,
       playerPosition: response.player.position,
-      playerToActPosition: response.playerToAct,
+      playerToActPosition: response.playerToActPosition,
       multiplierTiles: response.board.multiplierTiles,
     })
     if (resetPlayerTiles) {

@@ -157,16 +157,10 @@ class Game
       "id" => id,
       "player" => player.to_hash,
       "board" => board.to_hash,
-      "playerToAct" => player_to_act.position,
+      "playerToActPosition" => player_to_act.position,
       "totalPlayers" => total_players,
       "status" => status,
-      "players" => players.map do |player|
-        {
-          "position" => player.position,
-          "score" => player.score,
-          "name" => player.name
-        }
-      end
+      "allPlayers" => players.map(&:to_secretive_hash)
     }
   end
 

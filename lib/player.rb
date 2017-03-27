@@ -59,6 +59,15 @@ class Player
     }
   end
 
+  def to_secretive_hash
+    # only exposes information that it's OK for other players to see
+    {
+      "position" => position,
+      "score" => score,
+      "name" => name
+    }
+  end
+
   def self.from_hash(h)
     tile_rack = TileRack.from_hash(h.fetch("tileRack"))
     position = h.fetch("position").to_sym
