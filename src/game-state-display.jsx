@@ -1,6 +1,11 @@
 import React from 'react'
+import Util from './util.js'
 
 const GameStateDisplay = React.createClass({
+  playerFromPosition: function(position) {
+    return Util.findByAttribute(this.props.allPlayers, 'position', position)
+  },
+
   render: function() {
     let statusMessage = ''
     if (this.props.gameStatus === 'waiting_for_players') {
@@ -9,7 +14,8 @@ const GameStateDisplay = React.createClass({
     } else if (this.props.playerPosition === this.props.playerToActPosition) {
       statusMessage = 'Your turn!'
     } else {
-      statusMessage = 'Waiting for the other player to act'
+      let playerToAct = this.playerFromPosition(this.props.playerToActPosition)
+      statusMessage = playerToAct.name + " to act."
     }
     return (
       <div className="GameStateDisplay">

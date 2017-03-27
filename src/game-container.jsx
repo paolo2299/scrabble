@@ -17,6 +17,7 @@ const GameContainer = React.createClass({
       playedTiles: [],
       playerTiles: [],
       playerScore: 0,
+      allPlayers: [],
       selectedTileId: null,
       tentativelyPlayedTiles: [],
       multiplierTiles: {},
@@ -48,6 +49,7 @@ const GameContainer = React.createClass({
       playerScore: response.player.score,
       playerPosition: response.player.position,
       playerToActPosition: response.playerToActPosition,
+      allPlayers: response.allPlayers,
       multiplierTiles: response.board.multiplierTiles,
     })
     if (resetPlayerTiles) {
@@ -205,6 +207,7 @@ const GameContainer = React.createClass({
             gameStatus={this.state.gameStatus}
             playerPosition={this.state.playerPosition}
             playerToActPosition={this.state.playerToActPosition}
+            allPlayers={this.state.allPlayers}
           />
           <TileRack
             selectedTileId={this.state.selectedTileId}
