@@ -25,13 +25,17 @@ const GameContainer = React.createClass({
     return initialState
   },
 
-  startNewGame: function(numPlayers) {
+  startNewGame: function(numPlayers, playerName) {
     let self = this
     // TODO error handling
-    $.post('/games', {numPlayers: numPlayers}, function(response) {
-      self.setStateFromServerResponse(response, true)
-      self.pollServerForUpdates()
-    })
+    $.post(
+      '/games',
+      {numPlayers: numPlayers, playerName: playerName},
+      function(response) {
+        self.setStateFromServerResponse(response, true)
+        self.pollServerForUpdates()
+      }
+    )
   },
 
   setStateFromServerResponse: function(response, resetPlayerTiles) {
@@ -54,13 +58,18 @@ const GameContainer = React.createClass({
     }
   },
 
-  joinExistingGame: function(gameId) {
+  joinExistingGame: function(gameId, playerName) {
     let self = this
     // TODO error handling
-    $.post('/games/' + gameId + '/players', {}, function(response) {
-      self.setStateFromServerResponse(response, true)
-      self.pollServerForUpdates()
-    })
+    $.post(
+      '/games/' + gameId + '/players',
+      {playerName: playerName},
+      function(response)
+      {
+        self.setStateFromServerResponse(response, true)
+        self.pollServerForUpdates()
+      }
+    )
   },
 
   pollServerForUpdates: function() {

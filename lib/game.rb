@@ -23,7 +23,7 @@ class Game
   attr_reader :total_players
   attr_reader :status
 
-  def self.new_game(num_players)
+  def self.new_game(num_players, player_name)
     game_status = if num_players > 1
       GameStatus::WAITING_FOR_PLAYERS
     else
@@ -34,7 +34,7 @@ class Game
       id: random_id,
       board: Board.new_board,
       tile_bag: TileBag.new_tile_bag,
-      players: [Player.new_player1],
+      players: [Player.new_player1(player_name)],
       player_to_act_index: PLAYER_1_INDEX,
       status: game_status,
       total_players: num_players
@@ -85,11 +85,11 @@ class Game
     players.first.id
   end
 
-  def add_second_player!
+  def add_second_player!(player_name)
     unless players.count == 1
       raise GameError::TooManyPlayersError.new
     end
-    player2 = Player.new_player2
+    player2 = Player.new_player2(player_name)
     players << player2
     player2.fill_tile_rack!(tile_bag)
     if players.count == total_players
@@ -163,7 +163,8 @@ class Game
       "players" => players.map do |player|
         {
           "position" => player.position,
-          "score" => player.score
+          "score" => player.score,
+          "name" => player.name
         }
       end
     }

@@ -8,22 +8,24 @@ class Player
   attr_reader :score
   attr_reader :position
   attr_reader :tile_rack
+  attr_reader :name
 
-  def self.new_player1
+  def self.new_player1(player_name)
     tile_rack = TileRack.new_tile_rack
-    new(random_id, PLAYER1, tile_rack, 0)
+    new(random_id, PLAYER1, player_name, tile_rack, 0)
   end
 
-  def self.new_player2
+  def self.new_player2(player_name)
     tile_rack = TileRack.new_tile_rack
-    new(random_id, PLAYER2, tile_rack, 0)
+    new(random_id, PLAYER2, player_name, tile_rack, 0)
   end
 
-  def initialize(player_id, position, tile_rack, score)
+  def initialize(player_id, position, name, tile_rack, score)
     @id = player_id
     @position = position
     @tile_rack = tile_rack
     @score = score
+    @name = name
   end
 
   def add_score!(score_to_add)
@@ -52,7 +54,8 @@ class Player
       "id" => id,
       "tileRack" => tile_rack.to_hash,
       "position" => position,
-      "score" => score
+      "score" => score,
+      "name" => name
     }
   end
 
@@ -61,7 +64,8 @@ class Player
     position = h.fetch("position").to_sym
     score = h.fetch("score")
     id = h.fetch("id")
-    new(id, position, tile_rack, score)
+    name = h.fetch("name")
+    new(id, position, name, tile_rack, score)
   end
 
   private
