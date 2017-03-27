@@ -34,7 +34,7 @@ class Player
 
   def copy
     tile_rack_copy = tile_rack.copy
-    Player.new(id, position, tile_rack_copy, score)
+    Player.new(id, position, name, tile_rack_copy, score)
   end
 
   def take_tile!(tile_id)
