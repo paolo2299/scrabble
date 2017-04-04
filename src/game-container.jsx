@@ -3,7 +3,7 @@ import * as $ from 'jquery'
 import React from 'react'
 import Util from './util.js'
 import MenuScreen from './menu-screen.jsx'
-import TileRack from './tile-rack.jsx'
+import TileDisplay from './tile-display.jsx'
 import ErrorContainer from './error-container.jsx'
 import Board from './board.jsx'
 import GameStateDisplay from './game-state-display.jsx'
@@ -200,18 +200,13 @@ const GameContainer = React.createClass({
             multiplierTiles={this.state.multiplierTiles}
           />
           <ErrorContainer error={this.state.error} />
-          <TileRack
+          <TileDisplay
             selectedTileId={this.state.selectedTileId}
             playerTiles={this.state.playerTiles}
             tentativelyPlayedTiles={this.state.tentativelyPlayedTiles}
             onTileClicked={this.handleTileRackTileClicked}
+            gameStatus={this.state.gameStatus}
           />
-          <button className="action-button" onClick={this.playTiles}>
-            play
-          </button>
-          <button className="action-button" onClick={this.reset}>
-            reset
-          </button>
           <GameStateDisplay
             gameId={this.state.gameId}
             gameStatus={this.state.gameStatus}

@@ -2,12 +2,15 @@ import React from 'react'
 import * as _ from 'lodash'
 import Tile from './tile.jsx'
 
-const TileRack = React.createClass({
+const TileDisplay = React.createClass({
   onTileClicked: function(tileId) {
     this.props.onTileClicked(tileId)
   },
 
   render: function() {
+    if (this.props.gameStatus === 'waiting_for_players') {
+      return null
+    }
     let self = this
     let tiles = this.props.playerTiles.map(function(tile) {
       if (!tile) {
@@ -36,11 +39,19 @@ const TileRack = React.createClass({
       )
     })
     return (
-      <div className="TileRack">
-        { tiles }
+      <div className="tile-display">
+        <div className="TileRack">
+          { tiles }
+        </div>
+        <button className="action-button" onClick={this.playTiles}>
+          play
+        </button>
+        <button className="action-button" onClick={this.reset}>
+          reset
+        </button>
       </div>
     )
   },
 })
 
-export default TileRack
+export default TileDisplay
