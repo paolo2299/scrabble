@@ -5,7 +5,6 @@ import Util from './util.js'
 import MenuScreen from './menu-screen.jsx'
 import TileRack from './tile-rack.jsx'
 import ErrorContainer from './error-container.jsx'
-import ScoreDisplay from './score-display.jsx'
 import Board from './board.jsx'
 import GameStateDisplay from './game-state-display.jsx'
 
@@ -201,7 +200,6 @@ const GameContainer = React.createClass({
             multiplierTiles={this.state.multiplierTiles}
           />
           <ErrorContainer error={this.state.error} />
-          <ScoreDisplay score={this.state.playerScore} />
           <GameStateDisplay
             gameId={this.state.gameId}
             gameStatus={this.state.gameStatus}
