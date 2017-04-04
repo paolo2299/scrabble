@@ -7,6 +7,14 @@ const TileDisplay = React.createClass({
     this.props.onTileClicked(tileId)
   },
 
+  playTiles: function() {
+    this.props.playTiles()
+  },
+
+  reset: function() {
+    this.props.reset()
+  },
+
   render: function() {
     if (this.props.gameStatus === 'waiting_for_players') {
       return null

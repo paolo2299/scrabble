@@ -74,7 +74,11 @@ class Game
   end
 
   def player_to_act
-    players[@player_to_act_index]
+    if in_progress?
+      players[@player_to_act_index]
+    else
+      nil
+    end
   end
 
   def player2_id
@@ -157,7 +161,7 @@ class Game
       "id" => id,
       "player" => player.to_hash,
       "board" => board.to_hash,
-      "playerToActPosition" => player_to_act.position,
+      "playerToActPosition" => player_to_act && player_to_act.position,
       "totalPlayers" => total_players,
       "status" => status,
       "allPlayers" => players.map(&:to_secretive_hash)

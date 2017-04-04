@@ -206,6 +206,8 @@ const GameContainer = React.createClass({
             tentativelyPlayedTiles={this.state.tentativelyPlayedTiles}
             onTileClicked={this.handleTileRackTileClicked}
             gameStatus={this.state.gameStatus}
+            playTiles={this.playTiles}
+            rest={this.reset}
           />
           <GameStateDisplay
             gameId={this.state.gameId}
