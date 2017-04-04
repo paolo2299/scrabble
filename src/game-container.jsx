@@ -200,13 +200,6 @@ const GameContainer = React.createClass({
             multiplierTiles={this.state.multiplierTiles}
           />
           <ErrorContainer error={this.state.error} />
-          <GameStateDisplay
-            gameId={this.state.gameId}
-            gameStatus={this.state.gameStatus}
-            playerPosition={this.state.playerPosition}
-            playerToActPosition={this.state.playerToActPosition}
-            allPlayers={this.state.allPlayers}
-          />
           <TileRack
             selectedTileId={this.state.selectedTileId}
             playerTiles={this.state.playerTiles}
@@ -219,6 +212,13 @@ const GameContainer = React.createClass({
           <button className="action-button" onClick={this.reset}>
             reset
           </button>
+          <GameStateDisplay
+            gameId={this.state.gameId}
+            gameStatus={this.state.gameStatus}
+            playerPosition={this.state.playerPosition}
+            playerToActPosition={this.state.playerToActPosition}
+            allPlayers={this.state.allPlayers}
+          />
         </div>
       )
     } else {
