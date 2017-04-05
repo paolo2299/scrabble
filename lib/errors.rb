@@ -30,3 +30,9 @@ class GameError < ScrabbleError
   class PlayerActedOutOfTurnError < GameError; end;
   class GameNotInProgressError < GameError; end;
 end
+
+class GameInitialisationError < ScrabbleError
+  class NameNotProvidedError < GameError; end;
+  class GameNotFoundError < GameError; end;
+  class GameFullError < GameError; end;
+end

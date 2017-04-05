@@ -24,6 +24,9 @@ class Game
   attr_reader :status
 
   def self.new_game(num_players, player_name)
+    unless player_name && !player_name.empty?
+      raise GameInitialisationError::NameNotProvidedError.new
+    end
     game_status = if num_players > 1
       GameStatus::WAITING_FOR_PLAYERS
     else
@@ -34,7 +37,7 @@ class Game
       id: random_id,
       board: Board.new_board,
       tile_bag: TileBag.new_tile_bag,
-      players: [Player.new_player1(player_name)],
+      players: [Player.new_player(player_name, 1)],
       player_to_act_index: PLAYER_1_INDEX,
       status: game_status,
       total_players: num_players
@@ -58,7 +61,7 @@ class Game
       game_hash = JSON.parse(File.read(filename))
       return Game.from_hash(game_hash)
     end
-    raise GameError::GameNotFoundError.new game_id
+    raise GameInitialisationError::GameNotFoundError.new game_id
   end
 
   def initialize(properties)
@@ -90,12 +93,16 @@ class Game
   end
 
   def add_second_player!(player_name)
-    unless players.count == 1
+    unless player_name && !player_name.empty?
+      raise GameInitialisationError::NameNotProvidedError.new
+    end
+    unless players.count < total_players
       raise GameError::TooManyPlayersError.new
     end
-    player2 = Player.new_player2(player_name)
-    players << player2
-    player2.fill_tile_rack!(tile_bag)
+    highest_player_position = players.last.position
+    player = Player.new_player(player_name, highest_player_position + 1)
+    players << player
+    player.fill_tile_rack!(tile_bag)
     if players.count == total_players
       start_game!
     end

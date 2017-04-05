@@ -1,23 +1,15 @@
 require_relative './tile_rack'
 
 class Player
-  PLAYER1 = :player1
-  PLAYER2 = :player2
-
   attr_reader :id
   attr_reader :score
   attr_reader :position
   attr_reader :tile_rack
   attr_reader :name
 
-  def self.new_player1(player_name)
+  def self.new_player(player_name, position)
     tile_rack = TileRack.new_tile_rack
-    new(random_id, PLAYER1, player_name, tile_rack, 0)
-  end
-
-  def self.new_player2(player_name)
-    tile_rack = TileRack.new_tile_rack
-    new(random_id, PLAYER2, player_name, tile_rack, 0)
+    new(random_id, position, player_name, tile_rack, 0)
   end
 
   def initialize(player_id, position, name, tile_rack, score)
@@ -70,7 +62,7 @@ class Player
 
   def self.from_hash(h)
     tile_rack = TileRack.from_hash(h.fetch("tileRack"))
-    position = h.fetch("position").to_sym
+    position = h.fetch("position")
     score = h.fetch("score")
     id = h.fetch("id")
     name = h.fetch("name")

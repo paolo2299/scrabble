@@ -5,18 +5,26 @@ require_relative './lib/game'
 require 'pp'
 
 post "/games" do
-  num_players = Integer(params["numPlayers"])
-  player_name = params["playerName"]
-  game = Game.new_game(num_players, player_name)
+  request.body.rewind
+  request_payload = JSON.parse(request.body.read)
+  num_players = Integer(request_payload["numPlayers"])
+  player_name = request_payload["playerName"]
+  begin
+    game = Game.new_game(num_players, player_name)
+  rescue ScrabbleError => e
+    return handle_scrabble_error(e)
+  end
 
   content_type "application/json"
   game.to_hash_from_players_perspective(game.player1_id).to_json
 end
 
 post "/games/:game_id/players" do
-  game = Game.from_id(params["game_id"])
-  player_name = params["playerName"]
+  request.body.rewind
+  request_payload = JSON.parse(request.body.read)
   begin
+    game = Game.from_id(params["game_id"])
+    player_name = request_payload["playerName"]
     game.add_second_player!(player_name)
   rescue ScrabbleError => e
     return handle_scrabble_error(e)

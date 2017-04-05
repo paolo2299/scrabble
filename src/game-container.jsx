@@ -129,15 +129,8 @@ const GameContainer = React.createClass({
     this.setState({selectedTileId: null})
   },
 
-  errorMessageFromError: function(error) {
+  invalidMoveErrorMessageFromError: function(error) {
     let errMessage = 'Something went wrong. Please try again.'
-    if (!error) {
-      return errMessage
-    }
-    let errType = error.errorType
-    if (errType !== 'InvalidMoveError') {
-      return errMessage
-    }
     let errSubType = error.errorSubType
     switch (errSubType) {
       case 'FirstMoveNotOnCenterError':
@@ -159,6 +152,35 @@ const GameContainer = React.createClass({
         errMessage = 'You must build on the words already placed on the board.'
         break
     }
+    return errMessage
+  },
+
+  gameInitialisationErrorMessageFromError: function(error) {
+    let errMessage = 'Something went wrong. Please try again.'
+    let errSubType = error.errorSubType
+    switch (errSubType) {
+      case 'GameNotFoundError':
+        errMessage = 'Please provide a valid game ID.'
+        break
+      case 'NameNotProvidedError':
+        errMessage = 'Please provide a name.'
+        break
+    }
+    return errMessage
+  },
+
+  errorMessageFromError: function(error) {
+    let errMessage = 'Something went wrong. Please try again.'
+    if (!error) {
+      return errMessage
+    }
+    let errType = error.errorType
+    if (errType === 'InvalidMoveError') {
+      return this.invalidMoveErrorMessageFromError(error)
+    } else if (errType === 'GameInitialisationError') {
+      return this.gameInitialisationErrorMessageFromError(error)
+    }
+
     return errMessage
   },
 
