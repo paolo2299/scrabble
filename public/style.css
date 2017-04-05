@@ -107,6 +107,19 @@ button {
   margin-top: 30px;
 }
 
+.MenuScreen {
+  position: absolute;
+  width: 500px;
+  left: 50%;
+  margin-left: -250px;
+}
+
+.MenuScreen input {
+  width: 170px;
+  margin-left: 20px;
+  height: 22px;
+}
+
 .player-name {
   margin: 5px;
   background-color: firebrick;

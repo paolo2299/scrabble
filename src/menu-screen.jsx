@@ -46,12 +46,15 @@ const MenuScreen = React.createClass({
   render: function() {
     return (
       <div className="MenuScreen">
-        <input
-          name="playerName"
-          type="text"
-          value={this.state.playerName}
-          onChange={this.handlePlayerNameChange}
-        />
+        <div className="menu-section">
+          <label>Name</label>
+          <input
+            name="playerName"
+            type="text"
+            value={this.state.playerName}
+            onChange={this.handlePlayerNameChange}
+            />
+        </div>
         <div className="menu-section">
           <button
             className="menu-button"
