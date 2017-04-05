@@ -27,7 +27,17 @@ const MenuScreen = React.createClass({
     this.props.startNewGame(2, this.state.playerName)
   },
 
-  joinTwoPlayerGame: function() {
+  startNewThreePlayerGame: function() {
+    // TODO handle the case where playerName is empty
+    this.props.startNewGame(3, this.state.playerName)
+  },
+
+  startNewFourPlayerGame: function() {
+    // TODO handle the case where playerName is empty
+    this.props.startNewGame(4, this.state.playerName)
+  },
+
+  joinGame: function() {
     // TODO handle the case where gameCode is empty or clearly incorrect
     // TODO handle the case where playerName is empty
     this.props.joinExistingGame(this.state.gameCode, this.state.playerName)
@@ -58,9 +68,23 @@ const MenuScreen = React.createClass({
         </div>
         <div className="menu-section">
           <button
+            className="menu-button"
+            onClick={this.startNewThreePlayerGame} >
+            start three player game
+          </button>
+        </div>
+        <div className="menu-section">
+          <button
+            className="menu-button"
+            onClick={this.startNewFourPlayerGame} >
+            start four player game
+          </button>
+        </div>
+        <div className="menu-section">
+          <button
             className = "menu-button"
-            onClick={this.joinTwoPlayerGame} >
-            join two player game
+            onClick={this.joinGame} >
+            join multiplayer game
           </button>
           <input
             name="gameCode"
