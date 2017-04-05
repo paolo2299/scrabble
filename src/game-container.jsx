@@ -27,15 +27,25 @@ const GameContainer = React.createClass({
 
   startNewGame: function(numPlayers, playerName) {
     let self = this
-    // TODO error handling
-    $.post(
-      '/games',
-      {numPlayers: numPlayers, playerName: playerName},
-      function(response) {
+    $.ajax({
+      url: '/games',
+      method: 'POST',
+      data: JSON.stringify({numPlayers: numPlayers, playerName: playerName}),
+      contentType: 'application/json; charset=utf-8',
+      dataType: 'json',
+      success: function(response) {
         self.setStateFromServerResponse(response, true)
         self.pollServerForUpdates()
-      }
-    )
+      },
+      error: function(data) {
+        // TODO handle unexpected error too
+        let errorData = data.responseJSON
+        let errorMessage = self.errorMessageFromError(errorData)
+        self.setState({
+          gameInitialisationError: errorMessage,
+        })
+      },
+    })
   },
 
   setStateFromServerResponse: function(response, resetPlayerTiles) {
@@ -61,16 +71,25 @@ const GameContainer = React.createClass({
 
   joinExistingGame: function(gameId, playerName) {
     let self = this
-    // TODO error handling
-    $.post(
-      '/games/' + gameId + '/players',
-      {playerName: playerName},
-      function(response)
-      {
+    $.ajax({
+      url: '/games/' + gameId + '/players',
+      method: 'POST',
+      data: JSON.stringify({playerName: playerName}),
+      contentType: 'application/json; charset=utf-8',
+      dataType: 'json',
+      success: function(response) {
         self.setStateFromServerResponse(response, true)
         self.pollServerForUpdates()
-      }
-    )
+      },
+      error: function(data) {
+        // TODO handle unexpected error too
+        let errorData = data.responseJSON
+        let errorMessage = self.errorMessageFromError(errorData)
+        self.setState({
+          gameInitialisationError: errorMessage,
+        })
+      },
+    })
   },
 
   pollServerForUpdates: function() {
@@ -112,6 +131,9 @@ const GameContainer = React.createClass({
 
   errorMessageFromError: function(error) {
     let errMessage = 'Something went wrong. Please try again.'
+    if (!error) {
+      return errMessage
+    }
     let errType = error.errorType
     if (errType !== 'InvalidMoveError') {
       return errMessage
@@ -223,6 +245,7 @@ const GameContainer = React.createClass({
         <MenuScreen
           startNewGame={this.startNewGame}
           joinExistingGame={this.joinExistingGame}
+          error={this.state.gameInitialisationError}
         />
       )
     }

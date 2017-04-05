@@ -1,10 +1,11 @@
 import React from 'react'
+import ErrorContainer from './error-container.jsx'
 
 const MenuScreen = React.createClass({
   getInitialState: function() {
     let initialState = {
       gameCode: this.props.initalGameCode,
-      playerName: this.props.initialPlayerName,
+      playerName: this.props.initialPlayerName
     }
     return initialState
   },
@@ -46,8 +47,9 @@ const MenuScreen = React.createClass({
   render: function() {
     return (
       <div className="MenuScreen">
+        <ErrorContainer error={this.props.error} />
         <div className="menu-section">
-          <label>Name</label>
+          <label> Name </label>
           <input
             name="playerName"
             type="text"
