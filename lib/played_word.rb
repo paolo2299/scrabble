@@ -37,8 +37,19 @@ class PlayedWord
     word_score * multiplier
   end
 
+  def hash
+    equality_data.hash
+  end
+
   def ==(another_played_word)
-    self.to_s == another_played_word.to_s &&
-      self.positions == another_played_word.positions
+    equality_data == another_played_word.equality_data
+  end
+
+  def eql?(another_played_word)
+    self == another_played_word
+  end
+
+  def equality_data
+    [@tiles.map(&:id), positions]
   end
 end
