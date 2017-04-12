@@ -69,6 +69,26 @@ const GameContainer = React.createClass({
     }
   },
 
+  pollServerForUpdates: function() {
+    // TODO handle polling in separate class, and ensure
+    // only one poller is running at a time
+    setInterval(this.refreshGameState, 10000)
+  },
+
+  refreshGameState: function() {
+    if (!this.state.gameId) {
+      return
+    }
+    let self = this
+    // TODO error handling
+    $.get(
+      '/games/' + self.state.gameId,
+      {playerId: self.state.playerId},
+      function(response) {
+      self.setStateFromServerResponse(response, false)
+    })
+  },
+
   joinExistingGame: function(gameId, playerName) {
     let self = this
     $.ajax({
@@ -90,16 +110,6 @@ const GameContainer = React.createClass({
         })
       },
     })
-  },
-
-  pollServerForUpdates: function() {
-    // TODO handle polling in separate class, and ensure
-    // only one poller is running at a time
-    setInterval(this.refreshGameState, 10000)
-  },
-
-  findByPosition: function(tiles, position) {
-    return Util.findByAttribute(tiles, 'position', position)
   },
 
   handleTileRackTileClicked: function(tileId) {
@@ -127,6 +137,10 @@ const GameContainer = React.createClass({
       {tentativelyPlayedTiles: tentativelyPlayedTiles.concat([selectedTile])}
     )
     this.setState({selectedTileId: null})
+  },
+
+  findByPosition: function(tiles, position) {
+    return Util.findByAttribute(tiles, 'position', position)
   },
 
   invalidMoveErrorMessageFromError: function(error) {
@@ -192,19 +206,7 @@ const GameContainer = React.createClass({
     })
   },
 
-  refreshGameState: function() {
-    if (!this.state.gameId) {
-      return
-    }
-    let self = this
-    // TODO error handling
-    $.get(
-      '/games/' + self.state.gameId,
-      {playerId: self.state.playerId},
-      function(response) {
-      self.setStateFromServerResponse(response, false)
-    })
-  },
+
 
   playTiles: function() {
     let self = this
